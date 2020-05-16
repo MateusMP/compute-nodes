@@ -1,5 +1,4 @@
-import CanvasNode from "../../../src/nodes/CanvasNode";
-import { NodeTypes } from "../../../src/Constants";
+import { CanvasNode } from "node-machine";
 
 export interface DataFormat {
     A: any

@@ -1,4 +1,4 @@
-import CanvasNode from "node-machine";
+import { CanvasNode } from "node-machine";
 
 export default class ScatterPlotNode extends CanvasNode {
     static Type = "ScatterPlotGraph";

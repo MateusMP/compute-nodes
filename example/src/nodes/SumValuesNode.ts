@@ -1,4 +1,4 @@
-import CanvasNode from "node-machine";
+import { CanvasNode } from "node-machine";
 
 export interface DataFormat {
     A: any,
@@ -26,7 +26,7 @@ export default class SumValuesNode extends CanvasNode {
         },
     }
 
-    static construct(args: any) : CanvasNode {
+    static construct(args: any): CanvasNode {
         return new SumValuesNode(args);
     }
 

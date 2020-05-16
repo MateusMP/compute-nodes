@@ -1,4 +1,4 @@
-import CanvasNode, { Connection } from "../nodes/CanvasNode";
+import { CanvasNode, Connection } from "./CanvasNode";
 import { NodeRegistry, InputFormat } from "./NodeRegistry";
 import { destructPinId, buildPinId } from "./utils";
 
@@ -10,14 +10,15 @@ export interface NodeMap {
     [key: string]: CanvasNode
 }
 
-export abstract class NodeResolver<DefProps = void> {
-    registry: NodeRegistry<DefProps>;
+export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
+    registry: T;
     nodes: NodeMap;
     connections: ConnectionMap;
-    handlers: Map<string, []>;
+    handlers: { [key: string]: Function[] };
 
-    constructor(registry: NodeRegistry<DefProps>, nodes?: any, connections?: ConnectionMap) {
+    constructor(registry: T, nodes?: any, connections?: ConnectionMap) {
         this.registry = registry;
+        this.handlers = { 'new-node': [] };
         this.nodes = nodes || {};
         if (!connections) {
             this.connections = this.bakeConnections(nodes);
@@ -33,6 +34,10 @@ export abstract class NodeResolver<DefProps = void> {
     abstract resolveNodeOutputs(node: CanvasNode, inputData: any): any;
 
     bakeConnections(nodes: any) {
+        if (!nodes) {
+            return {};
+        }
+
         const connections: any = {};
         Object.keys(nodes).forEach(nodeId => {
             const node = nodes[nodeId];
@@ -60,7 +65,7 @@ export abstract class NodeResolver<DefProps = void> {
         if (!this.handlers[event]) {
             this.handlers[event] = [];
         }
-        this.handlers[event].remove(handler);
+        this.handlers[event] = this.handlers[event].filter(e => e != handler);
     }
 
     render(node: CanvasNode) {
@@ -114,7 +119,7 @@ export abstract class NodeResolver<DefProps = void> {
         const uniqueOutputs = new Set<string>();
         // TODO make this more efficient by having
         // a output to node index
-        Object.entries(this.connections).forEach(([id, conn]) => {
+        Object.entries(this.connections).forEach(([_id, conn]) => {
             if (conn.to) {
                 if (conn.from.node == node.id) {
                     uniqueOutputs.add(conn.to.node);

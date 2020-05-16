@@ -1,4 +1,4 @@
-import CanvasNode from "../../../src/nodes/CanvasNode";
+import CanvasNode from "../../../src/core/CanvasNode";
 
 export default class DatasetVariableNode extends CanvasNode {
     static Type = "DatasetVariable";

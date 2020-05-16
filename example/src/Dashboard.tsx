@@ -1,16 +1,16 @@
 import React from 'react';
 import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 
-import { Canvas, CanvasNode } from 'node-machine';
+import { Canvas, ItemTypes } from 'node-machine';
 
 import { useDrag } from 'react-dnd'
 
-import { LocalNodeRegistry, LocalNodeDefinition, LocalNodeResolver } from './LocalNodeResolver';
 import InputVariableNode from './nodes/InputVariableNode';
 import DataPreviewNode from './nodes/DataPreviewNode';
 import SumValuesNode from './nodes/SumValuesNode';
 import ScatterPlotNode from './nodes/ScatterPlotNode';
 import SumValuesGraphNode from './nodes/SumValuesGraphNode';
+import { LocalNodeRegistry, LocalNodeResolver } from './resolver/LocalNodeResolver';
 
 interface DashboardProps {
     columns: any[],
@@ -31,7 +31,7 @@ function VisualNodeOption({ name, details }: any) {
     );
 }
 
-class Dashboard extends React.Component<DashboardProps, DashboardState> {
+export class Dashboard extends React.Component<DashboardProps, DashboardState> {
     nodeRegistry: LocalNodeRegistry;
     resolver: LocalNodeResolver;
 
@@ -42,7 +42,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
             filter: "",
         };
 
-        this.nodeRegistry = new RenderableNodeRegistry();
+        this.nodeRegistry = new LocalNodeRegistry();
 
         this.nodeRegistry.registerType(SumValuesNode, {
             name: 'Sum Values',
@@ -53,7 +53,7 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
         this.nodeRegistry.registerType(InputVariableNode);
         this.nodeRegistry.registerType(DataPreviewNode);
         this.nodeRegistry.registerType(ScatterPlotNode);
-        this.resolver = new RenderableNodeResolver(this.nodeRegistry);
+        this.resolver = new LocalNodeResolver(this.nodeRegistry);
     }
 
     render() {
@@ -79,5 +79,3 @@ class Dashboard extends React.Component<DashboardProps, DashboardState> {
     }
 
 }
-
-export default Dashboard;

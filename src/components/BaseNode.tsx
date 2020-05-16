@@ -3,9 +3,9 @@ import React, { ReactNode } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 
 import * as d3 from "d3";
-import CanvasNode from '../nodes/CanvasNode';
-import { InputFormat } from '../adapters/NodeRegistry';
-import { NodeResolver } from '../adapters/NodeResolver';
+import { CanvasNode } from '../core/CanvasNode';
+import { InputFormat } from '../core/NodeRegistry';
+import { NodeResolver } from '../core/NodeResolver';
 
 export interface PinData {
     [key: string]: any;
@@ -23,7 +23,7 @@ export interface BaseNodeProps extends CanvasNode {
     output?: InputFormat;
 }
 
-export default class BaseNode extends React.Component<BaseNodeProps, any> {
+export class BaseNode extends React.Component<BaseNodeProps, any> {
 
     dragArea: any;
     minWidth: string;

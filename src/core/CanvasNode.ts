@@ -1,4 +1,4 @@
-import { buildPinId } from "../adapters/utils";
+import { buildPinId } from "./utils";
 
 export interface InputPins {
     [key: string]: string | undefined
@@ -18,7 +18,7 @@ export interface Connection {
     from: ConnInfo;
 }
 
-export default class CanvasNode {
+export class CanvasNode {
     type: string;
     id: string;
     x: number;

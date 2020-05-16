@@ -1,4 +1,4 @@
-import CanvasNode from "node-machine";
+import { CanvasNode } from "node-machine";
 
 export default class InputVariableNode extends CanvasNode {
     static Type = "InputVariable";
@@ -28,7 +28,7 @@ export default class InputVariableNode extends CanvasNode {
     static construct(args: any) {
         return new InputVariableNode(args);
     }
-    static localResolve(node: any, input: any) {
+    static localResolve(node: InputVariableNode, input: any) {
         return { [InputVariableNode.outValue]: node.data.value };
     }
 }

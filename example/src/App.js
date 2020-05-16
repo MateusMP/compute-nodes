@@ -1,10 +1,10 @@
 import React from 'react'
 
-import { ExampleComponent } from 'node-machine'
+import { Dashboard } from './Dashboard'
 import 'node-machine/dist/index.css'
 
 const App = () => {
-  return <ExampleComponent text="Create React Library Example 😄" />
+    return <Dashboard / >
 }
 
 export default App

@@ -1,12 +1,12 @@
 import React from 'react';
-import { ItemTypes } from '../Constants'
+import { ItemTypes } from '../core/Constants'
 import { useDrop, XYCoord } from 'react-dnd'
 import Connector from './Connector';
 
 import * as d3 from "d3";
 
-import { ConnectionMap, NodeResolver, NodeMap } from '../adapters/NodeResolver';
-import { connToPinId } from '../nodes/CanvasNode';
+import { ConnectionMap, NodeResolver, NodeMap } from '../core/NodeResolver';
+import { connToPinId } from '../core/CanvasNode';
 
 interface SvgCanvasProps {
     children: React.ReactNode;
@@ -49,7 +49,7 @@ interface Transform {
     zoom: number;
 }
 
-export default class Canvas extends React.Component<OwnProps, State> {
+export class Canvas extends React.Component<OwnProps, State> {
     transform: Transform;
     mainGroup: React.RefObject<SVGGElement>;
     dragG: React.RefObject<SVGGElement>;

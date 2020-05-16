@@ -4,14 +4,14 @@ import React from 'react';
 import { Row, Col } from 'react-bootstrap';
 
 import { VariableInputPin, VariableOutputPin } from './Pin';
-import BaseNode, { BaseNodeProps } from './BaseNode';
+import { BaseNode, BaseNodeProps } from './BaseNode';
 
 
 interface OwnProps extends BaseNodeProps {
     mdOut?: number;
 }
 
-export default class AutoBaseNode extends React.Component<OwnProps, any> {
+export class AutoBaseNode extends React.Component<OwnProps, any> {
 
     render() {
         let hasError = this.props.error || false;

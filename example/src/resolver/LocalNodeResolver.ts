@@ -1,20 +1,20 @@
 
-import { CanvasNode, NodeResolver, NodeRegistry, NodeTypeDefinition, pinParts, buildPinId, InputFormat, NodeResolver, NodeRegistry, NodeTypeDefinition } from "node-machine";
+import { CanvasNode, NodeRegistry, NodeResolver, InputFormat, buildPinId, destructPinId } from 'node-machine';
 
-export interface LocalNodeDefinition extends NodeTypeDefinition {
+export interface LocalNodeDefinition {
     localResolve(node: CanvasNode, input: any): any;
 }
 
-export class LocalNodeRegistry<T extends LocalNodeDefinition> extends NodeRegistry<T> {
+export class LocalNodeRegistry extends NodeRegistry<LocalNodeDefinition> {
     localResolve(node: CanvasNode, input: any) {
         return this.getNodeTypeInfo(node.type).localResolve(node, input);
     }
 }
 
-export class LocalNodeResolver<D extends LocalNodeDefinition, T extends LocalNodeRegistry<D>> extends NodeResolver<D, T> {
+export class LocalNodeResolver extends NodeResolver<LocalNodeRegistry> {
     pinData: any;
 
-    constructor(registry: T, nodes?: any) {
+    constructor(registry: LocalNodeRegistry, nodes?: any) {
         super(registry, nodes);
         this.pinData = {};
     }
@@ -23,7 +23,7 @@ export class LocalNodeResolver<D extends LocalNodeDefinition, T extends LocalNod
         if (pinId in this.pinData) {
             return this.pinData[pinId];
         } else {
-            const { nodeId, pin } = pinParts(pinId);
+            const { nodeId, pin } = destructPinId(pinId);
             if (nodeId in this.nodes) {
                 return this.resolveNode(this.nodes[nodeId])[pin];
             }

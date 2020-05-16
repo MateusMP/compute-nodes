@@ -1,4 +1,4 @@
-import CanvasNode from "../nodes/CanvasNode";
+import CanvasNode from "./CanvasNode";
 
 interface AInputFormat {
     type: string[] | string,
@@ -18,11 +18,13 @@ export interface NodeTypeDefinition {
     [key: string]: any;
 }
 
-export class NodeRegistry<ExtraDefProps> {
+export class NodeRegistry<ExtraDefProps = {}> {
     nodeTypes: { [key: string]: NodeTypeDefinition & ExtraDefProps } = {};
 
     registerType(info: NodeTypeDefinition & ExtraDefProps, moreProps?: any) {
-        info = { ...info, ...moreProps };
+        if (moreProps) {
+            info = { ...info, ...moreProps };
+        }
         this.nodeTypes[info.Type] = info;
     }
 
@@ -32,7 +34,7 @@ export class NodeRegistry<ExtraDefProps> {
         }
         const info = this.nodeTypes[type];
         const obj = info.construct(args);
-        obj.type = info.def.type;
+        obj.type = info.Type;
         return obj;
     }
 

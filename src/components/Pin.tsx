@@ -1,10 +1,7 @@
 import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useDrop, useDrag, DragObjectWithType } from 'react-dnd';
-import { ItemTypes } from '../Constants';
-import { useDispatch } from 'react-redux';
-
-import { createConnection } from '../reducers/canvas/actions';
+import { ItemTypes } from '../core/Constants';
 
 export interface PinDropItem {
     type: ItemTypes;
@@ -72,12 +69,11 @@ interface InputPinDrop extends DragObjectWithType {
     pinId: string,
 }
 
-export function InputPin({ nodeId, name, visualName, accept, error }: any) {
-    const dispatch = useDispatch();
+export function InputPin({ nodeId, name, visualName, accept, error, resolver }: any) {
     const pinId = generatePinId(nodeId, name);
     const [, ref] = useDrop<InputPinDrop, any, any>({
         accept: accept,
-        drop: (e: any) => dispatch(createConnection(e.pinId, pinId)),
+        drop: (e: any) => resolver.createConnection(e.pinId, pinId),
         collect: (monitor: any) => ({
             isOver: !!monitor.isOver(),
             canDrop: !!monitor.canDrop(),
