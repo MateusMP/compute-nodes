@@ -18,7 +18,7 @@ export interface BaseNodeProps extends CanvasNode {
     children: ReactNode;
     title: string;
 
-    resolver: NodeResolver;
+    resolver?: NodeResolver;
     input?: InputFormat;
     output?: InputFormat;
 }
@@ -57,7 +57,7 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
             d.x = d3.event.x;
             d.y = d3.event.y;
             // d3.select(that.dragArea.current).attr("x", d.x).attr("y", d.y);
-            that.props.resolver.updateNode(that.props.id, { x: d.x, y: d.y });
+            that.props.resolver!.updateNode(that.props.id, { x: d.x, y: d.y });
         }
 
         function dragended(this: any, d: any) {

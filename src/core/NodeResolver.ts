@@ -10,6 +10,10 @@ export interface NodeMap {
     [key: string]: CanvasNode
 }
 
+export const NewNodeEvent = 'node-new';
+export const UpdateNodeEvent = 'node-update'
+export const NewConnectionEvent = 'connection-new'
+
 export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     registry: T;
     nodes: NodeMap;
@@ -18,7 +22,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
 
     constructor(registry: T, nodes?: any, connections?: ConnectionMap) {
         this.registry = registry;
-        this.handlers = { 'new-node': [] };
+        this.handlers = {};
         this.nodes = nodes || {};
         if (!connections) {
             this.connections = this.bakeConnections(nodes);
@@ -44,7 +48,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
             if (node.inputPins) {
                 Object.keys(node.inputPins).forEach(toPinName => {
                     if (!(toPinName in connections!)) {
-                        const toPinId = `${nodeId}-${toPinName}`;
+                        const toPinId = buildPinId(nodeId, toPinName);
                         const fromPinId = node.inputPins[toPinName];
                         connections[toPinId] = this.buildNewConnection(fromPinId, nodeId, toPinName);
                     }
@@ -69,18 +73,20 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     }
 
     render(node: CanvasNode) {
-        return this.registry.renderNode(node);
+        return this.registry.renderNode({ ...node, resolver: this, resolvedData: this.resolveNode(node) });
     }
 
     createNode(type: string, { ...args }: any) {
         const node = this.registry.instantiateNewNode(type, args);
         this.nodes = { ...this.nodes, [node.id]: node };
+        this.handlers[NewNodeEvent].forEach(e => e(this.nodes, this.connections, node));
         return node;
     }
 
     updateNode(id: string, changes: any) {
         const updatedNode: CanvasNode = { ...this.nodes[id], ...changes };
         this.nodes = { ...this.nodes, [id]: updatedNode };
+        this.handlers[UpdateNodeEvent].forEach(e => e(this.nodes, this.connections, updatedNode));
     }
 
     createPinConnection(from: string, to: string) {
@@ -101,6 +107,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
             }
         }
         this.connections = { ...this.connections, [to]: connection };
+        this.handlers[NewConnectionEvent].forEach(e => e(this.nodes, this.connections, connection));
         return connection;
     }
 

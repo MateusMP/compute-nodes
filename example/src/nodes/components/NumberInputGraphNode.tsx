@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 
 import { Form } from 'react-bootstrap';
 
+import NumberInputNode from '../NumberInputNode';
+import { AutoBaseNode, NodeResolver } from 'node-machine';
 
-import InputVariableNode from '../nodes/InputVariableNode';
-import { generatePinId, AutoBaseNode } from 'node-machine';
 
-
-interface OwnProps extends InputVariableNode {
+interface OwnProps extends NumberInputNode {
     name: string;
+    resolver: NodeResolver;
 }
 
 interface DispatchProps {
@@ -19,7 +19,7 @@ interface DispatchProps {
 type Props = DispatchProps & OwnProps;
 
 
-class NumberInputGraphNode extends Component<Props> {
+export class NumberInputGraphNode extends Component<Props> {
 
     inputRef: any;
 
@@ -32,17 +32,16 @@ class NumberInputGraphNode extends Component<Props> {
     }
 
     onBlur(event: any) {
-        const pinId = generatePinId(this.props.id, InputVariableNode.outValue);
-        this.props.setPinData(pinId, +this.inputRef.current.value);
-        this.props.updateNode(this.props.id, { value: this.props.data.value });
+        this.props.resolver.updateNode(this.props.id, { data: { ...this.props.data, value: this.props.data.value } });
     }
 
     onChange(ev: any) {
-        this.props.updateNode(this.props.id, { value: ev.target.value })
+        this.props.resolver.updateNode(this.props.id, { data: { ...this.props.data, value: ev.target.value } })
     }
 
     render() {
-        return (<AutoBaseNode title="Number Input" {...this.props} output={InputVariableNode.OutputFormat} mdOut={3}>
+        return (<AutoBaseNode title="Number Input" mdOut={3} {...this.props}
+            output={NumberInputNode.OutputFormat} >
             <Form.Group>
                 <Form.Control size="lg" type="text" onBlur={this.onBlur}
                     placeholder={"" + this.props.data.value} ref={this.inputRef}
@@ -56,5 +55,3 @@ class NumberInputGraphNode extends Component<Props> {
         </AutoBaseNode>);
     }
 }
-
-export default connect(null, mapDispatchToProps)(NumberInputGraphNode);

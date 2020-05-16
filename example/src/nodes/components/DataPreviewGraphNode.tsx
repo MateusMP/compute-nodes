@@ -2,12 +2,12 @@ import React, { Component } from 'react';
 
 import { AutoBaseNode } from 'node-machine';
 
-import DataPreviewNode from './nodes/DataPreviewNode';
 import { Row, Col } from 'react-bootstrap';
+import { DataPreviewNode } from '../DataPreviewNode';
 
 
 interface OwnProps extends DataPreviewNode {
-    data
+    resolvedData: any
 }
 
 export default class DataPreviewGraphNode extends Component<OwnProps> {
@@ -58,20 +58,16 @@ export default class DataPreviewGraphNode extends Component<OwnProps> {
         }
     }
 
-    componentDidUpdate(prevProps: OwnProps) {
-        if (this.props.data.A !== prevProps.data.A) {
-
-        }
-    }
 
     render() {
         return (<AutoBaseNode {...this.props}
-            title="Data Preview" minWidth="200px">
+            title="Data Preview" minWidth="200px"
+            input={DataPreviewNode.InputFormat}>
             <div className="node-nodrag gn-data-preview container"
                 style={{
                     maxHeight: "100px"
                 }}>
-                {this.getView(this.props.data.A)}
+                {this.getView(this.props.resolvedData.a)}
             </div>
         </AutoBaseNode>);
     }

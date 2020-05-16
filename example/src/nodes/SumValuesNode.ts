@@ -26,11 +26,11 @@ export default class SumValuesNode extends CanvasNode {
         },
     }
 
-    static construct(args: any): CanvasNode {
+    static Construct = (args: any): CanvasNode => {
         return new SumValuesNode(args);
     }
 
-    static localResolve(node: SumValuesNode, { a, b }: any) {
+    static LocalResolve = (node: SumValuesNode, { a, b }: any) => {
         return {
             [SumValuesNode.outSum]: +a + +b,
         };

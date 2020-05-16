@@ -27,6 +27,7 @@
         "react": "^16.0.0",
         "react-dnd": "^10.0.2",
         "react-dnd-html5-backend": "^10.0.2",
+        "bootstrap": "^4.4.1",
         "react-bootstrap": "^1.0.1",
         "d3": "^5.15.1"
     },
@@ -58,10 +59,12 @@
         "react-scripts": "^3.4.1",
         "react-dnd": "^10.0.2",
         "react-dnd-html5-backend": "^10.0.2",
+        "bootstrap": "^4.4.1",
         "react-bootstrap": "^1.0.1",
         "d3": "^5.15.1"
     },
     "files": [
-        "dist"
+        "dist",
+        "src/styles.css"
     ]
 }

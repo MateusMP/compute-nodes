@@ -1,6 +1,6 @@
 import { CanvasNode } from "node-machine";
 
-export default class InputVariableNode extends CanvasNode {
+export default class NumberInputNode extends CanvasNode {
     static Type = "InputVariable";
 
     data: {
@@ -11,7 +11,7 @@ export default class InputVariableNode extends CanvasNode {
     static outValue = "value";
     static InputFormat = undefined;
     static OutputFormat = {
-        [InputVariableNode.outValue]: {
+        [NumberInputNode.outValue]: {
             type: 'any',
             visualName: ''
         }
@@ -25,10 +25,10 @@ export default class InputVariableNode extends CanvasNode {
         };
     }
 
-    static construct(args: any) {
-        return new InputVariableNode(args);
+    static Construct = (args: any) => {
+        return new NumberInputNode(args);
     }
-    static localResolve(node: InputVariableNode, input: any) {
-        return { [InputVariableNode.outValue]: node.data.value };
+    static LocalResolve = (node: NumberInputNode, input: any) => {
+        return { [NumberInputNode.outValue]: node.data.value };
     }
 }

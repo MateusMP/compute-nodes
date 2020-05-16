@@ -2,14 +2,12 @@ import React from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { useDrop, useDrag, DragObjectWithType } from 'react-dnd';
 import { ItemTypes } from '../core/Constants';
+import { buildPinId } from '../core/utils';
+import { NodeResolver } from '../core/NodeResolver';
 
 export interface PinDropItem {
     type: ItemTypes;
     [key: string]: any;
-}
-
-export function generatePinId(nodeId: string, pinName: string) {
-    return `${nodeId}-${pinName}`;
 }
 
 export class StopMouseDownPropagation extends React.Component {
@@ -41,7 +39,7 @@ interface OutputPinProps {
 }
 
 export function OutputPin({ nodeId, name, type, visualName }: OutputPinProps) {
-    const pinId = generatePinId(nodeId, name);
+    const pinId = buildPinId(nodeId, name);
 
     const [{ dragging }, dragRef] = useDrag<PinDropItem, any, any>({
         item: { type: type, name, pinId: pinId },
@@ -69,11 +67,20 @@ interface InputPinDrop extends DragObjectWithType {
     pinId: string,
 }
 
-export function InputPin({ nodeId, name, visualName, accept, error, resolver }: any) {
-    const pinId = generatePinId(nodeId, name);
+interface InputPinProps {
+    nodeId: string
+    name: string
+    visualName?: string
+    accept: any
+    error: boolean
+    resolver: NodeResolver
+}
+
+export function InputPin({ nodeId, name, visualName, accept, error, resolver }: InputPinProps) {
+    const pinId = buildPinId(nodeId, name);
     const [, ref] = useDrop<InputPinDrop, any, any>({
         accept: accept,
-        drop: (e: any) => resolver.createConnection(e.pinId, pinId),
+        drop: (e: any) => resolver.createPinConnection(e.pinId, pinId),
         collect: (monitor: any) => ({
             isOver: !!monitor.isOver(),
             canDrop: !!monitor.canDrop(),
@@ -81,7 +88,7 @@ export function InputPin({ nodeId, name, visualName, accept, error, resolver }: 
         }),
     });
 
-    const classes = `pin ${error ? 'error' : ''}`;
+    const classes = `pin  adasd ${error ? 'error' : ''}`;
 
     const displayName = visualName === undefined ? name : visualName;
 
@@ -90,7 +97,6 @@ export function InputPin({ nodeId, name, visualName, accept, error, resolver }: 
     </Row>
 }
 
-export function VariableInputPin({ nodeId, name, visualName, error = false }: any) {
-    return <InputPin nodeId={nodeId} name={name} visualName={visualName} accept={ItemTypes.VARIABLE_INPUT} error={error}>
-    </InputPin>
+export function VariableInputPin({ nodeId, name, visualName, resolver, error = false }: any) {
+    return <InputPin nodeId={nodeId} resolver={resolver} name={name} visualName={visualName} accept={ItemTypes.VARIABLE_INPUT} error={error}/>
 }

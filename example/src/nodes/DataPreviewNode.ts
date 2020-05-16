@@ -4,21 +4,21 @@ export interface DataFormat {
     A: any
 }
 
-export default class DataPreviewNode extends CanvasNode {
+export class DataPreviewNode extends CanvasNode {
     static Type = "DataPreview";
 
     static InputFormat = {
-        A: {
+        a: {
             type: 'any',
             visualName: '',
         }
     }
     static OutputFormat = undefined;
 
-    static construct(args: any) {
+    static Construct = (args: any) =>{
         return new DataPreviewNode(args);
     }
-    static localResolve(args: any, input: any) {
+    static LocalResolve = (args: any, input: any) => {
         return input;
     }
 }

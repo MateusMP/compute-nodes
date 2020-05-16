@@ -1,7 +1,7 @@
 import React from "react";
 import { act } from "react-dom/test-utils";
 import { NodeResolver } from "../../core/NodeResolver";
-import CanvasNode from "../../core/CanvasNode";
+import { CanvasNode } from "../../core/CanvasNode";
 import { InputFormat, NodeRegistry } from "../../core/NodeRegistry";
 import { buildPinId } from "../../core/utils";
 
@@ -20,9 +20,9 @@ class TestNodeResolver extends NodeResolver {
 }
 
 class In1Out1 extends CanvasNode {
-    static Type= "In1Out1";
-    static InputFormat= { in: { type: "any" } };
-    static OutputFormat= { out: { type: "any" } };
+    static Type = "In1Out1";
+    static InputFormat = { in: { type: "any" } };
+    static OutputFormat = { out: { type: "any" } };
     static construct(args: any) { return new CanvasNode(args); }
     static render(args: any) { return <div />; }
 }

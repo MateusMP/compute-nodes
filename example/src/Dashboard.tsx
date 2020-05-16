@@ -5,12 +5,15 @@ import { Canvas, ItemTypes } from 'node-machine';
 
 import { useDrag } from 'react-dnd'
 
-import InputVariableNode from './nodes/InputVariableNode';
-import DataPreviewNode from './nodes/DataPreviewNode';
+import NumberInputNode from './nodes/NumberInputNode';
 import SumValuesNode from './nodes/SumValuesNode';
 import ScatterPlotNode from './nodes/ScatterPlotNode';
-import SumValuesGraphNode from './nodes/SumValuesGraphNode';
+import SumValuesGraphNode from './nodes/components/SumValuesGraphNode';
 import { LocalNodeRegistry, LocalNodeResolver } from './resolver/LocalNodeResolver';
+import { DataPreviewNode } from './nodes/DataPreviewNode';
+import { ScatterPlotGraphNode } from './nodes/components/ScatterPlotGraphNode';
+import DataPreviewGraphNode from './nodes/components/DataPreviewGraphNode';
+import { NumberInputGraphNode } from './nodes/components/NumberInputGraphNode';
 
 interface DashboardProps {
     columns: any[],
@@ -50,9 +53,22 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
             render: (args: any) => { return <SumValuesGraphNode {...args} /> }
         });
 
-        this.nodeRegistry.registerType(InputVariableNode);
-        this.nodeRegistry.registerType(DataPreviewNode);
-        this.nodeRegistry.registerType(ScatterPlotNode);
+        this.nodeRegistry.registerType(NumberInputNode, {
+            name: 'Input Value',
+            userCreatable: true,
+            render: (args: any) => { return <NumberInputGraphNode {...args} /> }
+        });
+        this.nodeRegistry.registerType(DataPreviewNode, {
+            name: 'Data Preview',
+            userCreatable: true,
+            render: (args: any) => { return <DataPreviewGraphNode {...args} /> }
+        });
+        this.nodeRegistry.registerType(ScatterPlotNode, {
+            name: 'Scatter Plot',
+            userCreatable: true,
+            render: (args: any) => { return <ScatterPlotGraphNode {...args} /> }
+        });
+
         this.resolver = new LocalNodeResolver(this.nodeRegistry);
     }
 

@@ -5,7 +5,7 @@ import Connector from './Connector';
 
 import * as d3 from "d3";
 
-import { ConnectionMap, NodeResolver, NodeMap } from '../core/NodeResolver';
+import { ConnectionMap, NodeResolver, NodeMap, NewNodeEvent, UpdateNodeEvent, NewConnectionEvent } from '../core/NodeResolver';
 import { connToPinId } from '../core/CanvasNode';
 
 interface SvgCanvasProps {
@@ -69,11 +69,7 @@ export class Canvas extends React.Component<OwnProps, State> {
         this.dragG = React.createRef<SVGGElement>();
         this.transform = { x: 0, y: 0, zoom: 1 };
 
-        this.resolverStateChanged.bind(this);
-    }
-
-    resolverStateChanged(nodes: any, connections: any) {
-        this.setState({ nodes, connections });
+        this.resolverStateChanged = this.resolverStateChanged.bind(this);
     }
 
     variableDropped(e: CanvasDropItem, offset: XYCoord) {
@@ -128,13 +124,21 @@ export class Canvas extends React.Component<OwnProps, State> {
         });
         return a;
     }
+    
+    resolverStateChanged(nodes: any, connections: any) {
+        this.setState({ nodes, connections });
+    }
 
     componentWillUnmount() {
-        this.props.resolver.unbind('new-node', this.resolverStateChanged);
+        this.props.resolver.unbind(NewNodeEvent, this.resolverStateChanged);
+        this.props.resolver.unbind(UpdateNodeEvent, this.resolverStateChanged);
+        this.props.resolver.unbind(NewConnectionEvent, this.resolverStateChanged);
     }
 
     componentDidMount() {
-        this.props.resolver.on('new-node', this.resolverStateChanged);
+        this.props.resolver.on(NewNodeEvent, this.resolverStateChanged);
+        this.props.resolver.on(UpdateNodeEvent, this.resolverStateChanged);
+        this.props.resolver.on(NewConnectionEvent, this.resolverStateChanged);
 
         if (this.mainGroup.current && this.dragG.current) {
             const that = this;

@@ -16,7 +16,7 @@ export class AutoBaseNode extends React.Component<OwnProps, any> {
     render() {
         let hasError = this.props.error || false;
         const inputPinComponents = this.props.input ? Object.entries(this.props.input).map(([key, value]) => {
-            return <VariableInputPin key={key} nodeId={this.props.id} name={key} visualName={value.visualName} />;
+            return <VariableInputPin resolver={this.props.resolver} key={key} nodeId={this.props.id} name={key} visualName={value.visualName} />;
         }) : null;
 
         const outputPinComponents = this.props.output ? Object.entries(this.props.output).map(([key, value]) => {

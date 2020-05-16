@@ -15,10 +15,10 @@ export default class ScatterPlotNode extends CanvasNode {
 
     static OutputFormat = undefined;
 
-    static construct(args: any) {
+    static Construct = (args: any) => {
         return new ScatterPlotNode(args);
     }
-    static localResolve(args: any, input: any) {
+    static LocalResolve = (args: any, input: any) => {
         return input;
     }
 }

@@ -2,12 +2,12 @@
 import { CanvasNode, NodeRegistry, NodeResolver, InputFormat, buildPinId, destructPinId } from 'node-machine';
 
 export interface LocalNodeDefinition {
-    localResolve(node: CanvasNode, input: any): any;
+    LocalResolve(node: CanvasNode, input: any): any;
 }
 
 export class LocalNodeRegistry extends NodeRegistry<LocalNodeDefinition> {
     localResolve(node: CanvasNode, input: any) {
-        return this.getNodeTypeInfo(node.type).localResolve(node, input);
+        return this.getNodeTypeInfo(node.type).LocalResolve(node, input);
     }
 }
 
