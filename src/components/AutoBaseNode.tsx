@@ -18,13 +18,20 @@ export class AutoBaseNode extends React.Component<OwnProps, any> {
 
     render() {
         let hasError = this.props.error || false;
-        const inputPinComponents = this.props.input ? Object.entries(this.props.input).map(([key, value]) => {
-            return <InputPin error={false} dataType={value.type} resolver={this.props.resolver!} key={key} nodeId={this.props.id} name={key} visualName={value.visualName} />;
-        }) : null;
+        const inputPins = this.props.input ? Object.entries(this.props.input)
+            .map(([key, value]) => {
+                return <InputPin error={false} dataType={value.type}
+                    resolver={this.props.resolver!}
+                    key={key} nodeId={this.props.id} name={key}
+                    visualName={value.visualName} />;
+            }) : null;
 
-        const outputPinComponents = this.props.output ? Object.entries(this.props.output).map(([key, value]) => {
-            return <OutputPin dataType={value.type} key={key} nodeId={this.props.id} name={key} visualName={value.visualName} />;
-        }) : null;
+        const outputPins = this.props.output ? Object.entries(this.props.output)
+            .map(([key, value]) => {
+                return <OutputPin dataType={value.type} key={key}
+                    nodeId={this.props.id} name={key}
+                    visualName={value.visualName} />;
+            }) : null;
 
         const mdIn = this.props.input ? 2 : 0;
         const mdOut = this.props.output ? (this.props.mdOut ? this.props.mdOut : 2) : 0;
@@ -34,7 +41,7 @@ export class AutoBaseNode extends React.Component<OwnProps, any> {
                 <Row>
                     {mdIn ?
                         (<Col md={mdIn} className="ignore-mouse">
-                            {inputPinComponents}
+                            {inputPins}
                         </Col>) : null}
 
                     <Col md={12 - mdIn - mdOut}>
@@ -43,7 +50,7 @@ export class AutoBaseNode extends React.Component<OwnProps, any> {
 
                     {mdOut ?
                         (<Col md={mdOut}>
-                            {outputPinComponents}
+                            {outputPins}
                         </Col>) : null}
 
                 </Row>

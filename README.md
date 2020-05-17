@@ -2,8 +2,6 @@
 
 > Create any logic or data transformation using visual nodes!
 
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-
 
 ![Alt text](.github/images/node-example.png?raw=true "Compute Nodes")
 
@@ -26,7 +24,7 @@ and associate any data between the node connections.
 
 ## 1- Define and register some nodes:
 ```ts
-class SomeNode : CanvasNode {
+class SomeNode extends CanvasNode {
     data: {
       x,
       y,
