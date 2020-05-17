@@ -1,10 +1,10 @@
 {
-    "name": "node-machine",
-    "version": "1.0.0",
-    "description": "Create any logic or data transformation using visual nodes!",
+    "name": "compute-nodes",
+    "version": "0.1.0",
+    "description": "Compute any logic or data transformation using visual nodes!",
     "author": "MateusMP",
     "license": "MIT",
-    "repository": "MateusMP/node-machine",
+    "repository": "MateusMP/compute-nodes",
     "main": "dist/index.js",
     "module": "dist/index.modern.js",
     "source": "src/index.ts",
@@ -27,7 +27,7 @@
         "react": "^16.0.0",
         "react-dnd": "^10.0.2",
         "react-dnd-html5-backend": "^10.0.2",
-        "bootstrap": "^4.4.1",
+        "bootstrap": "^4.5.0",
         "react-bootstrap": "^1.0.1",
         "d3": "^5.15.1"
     },
@@ -59,7 +59,7 @@
         "react-scripts": "^3.4.1",
         "react-dnd": "^10.0.2",
         "react-dnd-html5-backend": "^10.0.2",
-        "bootstrap": "^4.4.1",
+        "bootstrap": "^4.5.0",
         "react-bootstrap": "^1.0.1",
         "d3": "^5.15.1"
     },

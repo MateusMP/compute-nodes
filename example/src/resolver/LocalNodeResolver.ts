@@ -1,5 +1,5 @@
 
-import { CanvasNode, NodeRegistry, NodeResolver, InputFormat, buildPinId, destructPinId } from 'node-machine';
+import { CanvasNode, NodeRegistry, NodeResolver, InputFormat, buildPinId, destructPinId } from 'compute-nodes';
 
 export interface LocalNodeDefinition {
     LocalResolve(node: CanvasNode, input: any): any;

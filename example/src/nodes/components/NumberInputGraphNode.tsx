@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Form } from 'react-bootstrap';
 
 import NumberInputNode from '../NumberInputNode';
-import { AutoBaseNode, NodeResolver } from 'node-machine';
+import { AutoBaseNode, NodeResolver } from 'compute-nodes';
 
 
 interface OwnProps extends NumberInputNode {

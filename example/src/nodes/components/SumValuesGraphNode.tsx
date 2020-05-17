@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import SumValuesNode, { DataFormat } from '../SumValuesNode';
-import { AutoBaseNode } from 'node-machine';
+import { AutoBaseNode } from 'compute-nodes';
 
 interface OwnProps extends SumValuesNode {
     resolvedData: {

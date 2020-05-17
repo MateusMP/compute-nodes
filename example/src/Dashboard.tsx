@@ -1,7 +1,7 @@
 import React from 'react';
-import { Row, Col, Container, Form, Button } from 'react-bootstrap';
+import { Row, Col, Container, Form } from 'react-bootstrap';
 
-import { Canvas, ItemTypes } from 'node-machine';
+import { Canvas, ItemTypes } from 'compute-nodes';
 
 import { useDrag } from 'react-dnd'
 
@@ -12,7 +12,7 @@ import SumValuesGraphNode from './nodes/components/SumValuesGraphNode';
 import { LocalNodeRegistry, LocalNodeResolver } from './resolver/LocalNodeResolver';
 import { DataPreviewNode } from './nodes/DataPreviewNode';
 import { ScatterPlotGraphNode } from './nodes/components/ScatterPlotGraphNode';
-import DataPreviewGraphNode from './nodes/components/DataPreviewGraphNode';
+import { DataPreviewGraphNode } from './nodes/components/DataPreviewGraphNode';
 import { NumberInputGraphNode } from './nodes/components/NumberInputGraphNode';
 
 interface DashboardProps {

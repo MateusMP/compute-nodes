@@ -1,4 +1,4 @@
-import { CanvasNode } from "node-machine";
+import { CanvasNode } from "compute-nodes";
 
 export default class NumberInputNode extends CanvasNode {
     static Type = "InputVariable";

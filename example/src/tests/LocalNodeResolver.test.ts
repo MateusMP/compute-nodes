@@ -1,6 +1,6 @@
 import { act } from "react-dom/test-utils";
 import { LocalNodeResolver, LocalNodeRegistry } from "../resolver/LocalNodeResolver";
-import { buildPinId } from "node-machine";
+import { buildPinId } from "compute-nodes";
 import SumValuesNode from "../nodes/SumValuesNode";
 import NumberInputNode from "../nodes/NumberInputNode";
 

@@ -1,25 +1,28 @@
-# node-machine
+# compute-nodes
 
 > Create any logic or data transformation using visual nodes!
 
-[![NPM](https://img.shields.io/npm/v/node-machine.svg)](https://www.npmjs.com/package/node-machine) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 
-![Alt text](.github/images/node-example.png?raw=true "Node Machine")
+![Alt text](.github/images/node-example.png?raw=true "Compute Nodes")
 
 ## Install
 
 ```bash
-npm install --save node-machine
+npm install --save compute-nodes
 ```
 
 ## Usage
 
 See examples/ to have a better idea of how to use this framework.
+```bash
+cd examples
+npm start
+```
 
 In short, you need to define a resolver that will process the data from the nodes
 and associate any data between the node connections.
-
 
 ## 1- Define and register some nodes:
 ```ts
@@ -69,7 +72,7 @@ class SomeNode : CanvasNode {
 }
 ```
 
-## 2- Register your types and define a resolver, and provide that to a canvas
+## 2- Register your types
 ```tsx
 // Create a NodeRegistry and register your types:
 const nodeRegistry = new LocalNodeRegistry();
@@ -81,9 +84,12 @@ const nodeRegistry = new LocalNodeRegistry();
 nodeRegistry.registerType(SomeNode, {
     render: (props) => <SomeNodeVisualComponent {...props}/>, /*...others...*/});
 
+```
 
+## 3- Setup a node resolver and provide it to a canvas
+```tsx
 // Create your node resolver
-const resolver = new LocalNodeResolver()
+const resolver = new LocalNodeResolver(nodeRegistry)
 
 // And provide the resolver to a canvas component
 function NodeGraphCanvas() {

@@ -1,16 +1,16 @@
 {
-    "name": "node-machine-example",
-    "homepage": "https://MateusMP.github.io/node-machine",
+    "name": "compute-nodes-example",
+    "homepage": "https://MateusMP.github.io/compute-nodes",
     "version": "0.0.0",
     "private": true,
     "dependencies": {
         "bootstrap": "file:../node_modules/bootstrap",
-        "@types/node-machine": "file:..",
+        "@types/compute-nodes": "file:..",
         "react": "file:../node_modules/react",
         "react-dom": "file:../node_modules/react-dom",
         "react-scripts": "file:../node_modules/react-scripts",
         "react-bootstrap": "file:../node_modules/react-bootstrap",
-        "node-machine": "file:.."
+        "compute-nodes": "file:.."
     },
     "scripts": {
         "start": "node ../node_modules/react-scripts/bin/react-scripts.js start",

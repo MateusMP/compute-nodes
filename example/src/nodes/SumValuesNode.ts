@@ -1,4 +1,4 @@
-import { CanvasNode } from "node-machine";
+import { CanvasNode } from "compute-nodes";
 
 export interface DataFormat {
     A: any,

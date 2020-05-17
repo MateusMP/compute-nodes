@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Dashboard } from './Dashboard';
-import 'node-machine/dist/index.css';
+import 'compute-nodes/dist/index.css';
 
 import { DndProvider } from 'react-dnd';
 import Backend from 'react-dnd-html5-backend';

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { AutoBaseNode } from 'node-machine';
+import { AutoBaseNode } from 'compute-nodes';
 
 import { Row, Col } from 'react-bootstrap';
 import { DataPreviewNode } from '../DataPreviewNode';
@@ -10,7 +10,7 @@ interface OwnProps extends DataPreviewNode {
     resolvedData: any
 }
 
-export default class DataPreviewGraphNode extends Component<OwnProps> {
+export class DataPreviewGraphNode extends Component<OwnProps> {
 
     mapArray(array: any[]) {
         const maxRows = 30;
@@ -47,6 +47,7 @@ export default class DataPreviewGraphNode extends Component<OwnProps> {
                         );
                     });
                 }
+                break;
             case 'string':
             case 'number':
                 return <Col>{data}</Col>
