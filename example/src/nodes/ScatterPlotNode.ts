@@ -18,7 +18,7 @@ export default class ScatterPlotNode extends CanvasNode {
     static Construct = (args: any) => {
         return new ScatterPlotNode(args);
     }
-    static LocalResolve = (args: any, input: any) => {
+    static LocalResolve = (node: any, input: any) => {
         return input;
     }
 }
