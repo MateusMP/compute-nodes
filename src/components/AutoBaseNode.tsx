@@ -3,7 +3,7 @@ import React from 'react';
 
 import { Row, Col } from 'react-bootstrap';
 
-import { VariableInputPin, VariableOutputPin } from './Pin';
+import { InputPin, OutputPin } from './Pin';
 import { BaseNode, BaseNodeProps } from './BaseNode';
 
 
@@ -11,16 +11,19 @@ interface OwnProps extends BaseNodeProps {
     mdOut?: number;
 }
 
+/**
+ * An automatic base node that includes layout generation for input and output pins
+ */
 export class AutoBaseNode extends React.Component<OwnProps, any> {
 
     render() {
         let hasError = this.props.error || false;
         const inputPinComponents = this.props.input ? Object.entries(this.props.input).map(([key, value]) => {
-            return <VariableInputPin resolver={this.props.resolver} key={key} nodeId={this.props.id} name={key} visualName={value.visualName} />;
+            return <InputPin error={false} dataType={value.type} resolver={this.props.resolver!} key={key} nodeId={this.props.id} name={key} visualName={value.visualName} />;
         }) : null;
 
         const outputPinComponents = this.props.output ? Object.entries(this.props.output).map(([key, value]) => {
-            return <VariableOutputPin key={key} nodeId={this.props.id} name={key} visualName={value.visualName} />;
+            return <OutputPin dataType={value.type} key={key} nodeId={this.props.id} name={key} visualName={value.visualName} />;
         }) : null;
 
         const mdIn = this.props.input ? 2 : 0;

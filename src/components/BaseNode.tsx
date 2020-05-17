@@ -23,6 +23,10 @@ export interface BaseNodeProps extends CanvasNode {
     output?: InputFormat;
 }
 
+/**
+ * A Base node.
+ * Provides dragging functionallity and basic layout
+ */
 export class BaseNode extends React.Component<BaseNodeProps, any> {
 
     dragArea: any;

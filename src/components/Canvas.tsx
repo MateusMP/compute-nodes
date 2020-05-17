@@ -18,6 +18,9 @@ interface CanvasDropItem {
     [key: string]: any;
 }
 
+/**
+ * SVG Canvas with drop event handling
+ */
 function SvgCanvas({ canvas, children }: SvgCanvasProps) {
     const [{ isOver }, ref] = useDrop({
         accept: [ItemTypes.VISUAL_NODE],
@@ -49,13 +52,19 @@ interface Transform {
     zoom: number;
 }
 
+/**
+ * Canvas responsible to render the nodes and links
+ * Will listen to events from {@link NodeResolver}
+ */
 export class Canvas extends React.Component<OwnProps, State> {
     transform: Transform;
     mainGroup: React.RefObject<SVGGElement>;
     dragG: React.RefObject<SVGGElement>;
     shouldRenderConnections = false;
 
-
+    /**
+     * @param props @see {@link OwnProps} for details
+     */
     constructor(props: OwnProps) {
         super(props);
 
@@ -124,7 +133,7 @@ export class Canvas extends React.Component<OwnProps, State> {
         });
         return a;
     }
-    
+
     resolverStateChanged(nodes: any, connections: any) {
         this.setState({ nodes, connections });
     }

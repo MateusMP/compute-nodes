@@ -4,6 +4,7 @@ import { useDrop, useDrag, DragObjectWithType } from 'react-dnd';
 import { ItemTypes } from '../core/Constants';
 import { buildPinId } from '../core/utils';
 import { NodeResolver } from '../core/NodeResolver';
+import { LinkDataType } from '../core/NodeRegistry';
 
 export interface PinDropItem {
     type: ItemTypes;
@@ -34,15 +35,20 @@ export class StopMouseDownPropagation extends React.Component {
 interface OutputPinProps {
     nodeId: string;
     name: string;
-    type: ItemTypes;
-    visualName: string;
+    visualName?: string;
+    dataType: LinkDataType;
 }
 
-export function OutputPin({ nodeId, name, type, visualName }: OutputPinProps) {
+export interface PinDropItem extends DragObjectWithType {
+    dataType: LinkDataType;
+    pinId: string;
+}
+
+export function OutputPin({ nodeId, name, visualName, dataType }: OutputPinProps) {
     const pinId = buildPinId(nodeId, name);
 
     const [{ dragging }, dragRef] = useDrag<PinDropItem, any, any>({
-        item: { type: type, name, pinId: pinId },
+        item: { type: ItemTypes.VARIABLE_INPUT, dataType: dataType, pinId: pinId },
         collect: (monitor: any) => ({
             dragging: monitor.isDragging(),
         }),
@@ -59,27 +65,24 @@ export function OutputPin({ nodeId, name, type, visualName }: OutputPinProps) {
     </Row>);
 }
 
-export function VariableOutputPin({ nodeId, name, ...props }: any) {
-    return <OutputPin {...props} nodeId={nodeId} name={name} type={ItemTypes.VARIABLE_INPUT} />
-}
-
-interface InputPinDrop extends DragObjectWithType {
-    pinId: string,
-}
-
 interface InputPinProps {
     nodeId: string
     name: string
     visualName?: string
-    accept: any
+    dataType: LinkDataType
     error: boolean
     resolver: NodeResolver
 }
 
-export function InputPin({ nodeId, name, visualName, accept, error, resolver }: InputPinProps) {
+/**
+ * A generic input pin
+ * @param param0 
+ */
+export function InputPin({ nodeId, name, visualName, dataType, error, resolver }: InputPinProps) {
     const pinId = buildPinId(nodeId, name);
-    const [, ref] = useDrop<InputPinDrop, any, any>({
-        accept: accept,
+    const [, ref] = useDrop<PinDropItem, any, any>({
+        accept: ItemTypes.VARIABLE_INPUT,
+        canDrop: (item, _monitor) => item.dataType === dataType,
         drop: (e: any) => resolver.createPinConnection(e.pinId, pinId),
         collect: (monitor: any) => ({
             isOver: !!monitor.isOver(),
@@ -95,8 +98,4 @@ export function InputPin({ nodeId, name, visualName, accept, error, resolver }: 
     return <Row className="input-pin">
         <div id={pinId} ref={ref} className={classes}></div><span>{displayName}</span>
     </Row>
-}
-
-export function VariableInputPin({ nodeId, name, visualName, resolver, error = false }: any) {
-    return <InputPin nodeId={nodeId} resolver={resolver} name={name} visualName={visualName} accept={ItemTypes.VARIABLE_INPUT} error={error}/>
 }

@@ -1,5 +1,9 @@
 import React from 'react';
 
+/**
+ * Represents a connection in the canvas
+ * @param {startPoint, endPoint} the start/end positions for the connector in canvas space.
+ */
 export default function Connector({ startPoint, endPoint }: { startPoint: number[], endPoint: number[] }) {
 
     // const startPoint = [25, 25];

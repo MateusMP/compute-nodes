@@ -2,7 +2,7 @@ import { act } from "react-dom/test-utils";
 import { LocalNodeResolver, LocalNodeRegistry } from "../resolver/LocalNodeResolver";
 import { buildPinId } from "node-machine";
 import SumValuesNode from "../nodes/SumValuesNode";
-import InputVariableNode from "../nodes/InputVariableNode";
+import NumberInputNode from "../nodes/NumberInputNode";
 
 
 let resolver: LocalNodeResolver | null = null;
@@ -38,7 +38,7 @@ Object.keys(testData).forEach(id => testData[id].id = id); // embed ids
 
 const registry = new LocalNodeRegistry();
 registry.registerType(SumValuesNode);
-registry.registerType(InputVariableNode);
+registry.registerType(NumberInputNode);
 
 it("sum node resolves", () => {
     act(() => { resolver = new LocalNodeResolver(registry, testData); });

@@ -47,26 +47,26 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
         this.nodeRegistry = new LocalNodeRegistry();
 
-        this.nodeRegistry.registerType(SumValuesNode, {
+        this.nodeRegistry.registerType({
+            ...SumValuesNode,
             name: 'Sum Values',
-            userCreatable: true,
-            render: (args: any) => { return <SumValuesGraphNode {...args} /> }
+            Render: (args: any) => { return <SumValuesGraphNode {...args} /> }
         });
 
-        this.nodeRegistry.registerType(NumberInputNode, {
+        this.nodeRegistry.registerType({
+            ...NumberInputNode,
             name: 'Input Value',
-            userCreatable: true,
-            render: (args: any) => { return <NumberInputGraphNode {...args} /> }
+            Render: (args: any) => { return <NumberInputGraphNode {...args} /> }
         });
-        this.nodeRegistry.registerType(DataPreviewNode, {
+        this.nodeRegistry.registerType({
+            ...DataPreviewNode,
             name: 'Data Preview',
-            userCreatable: true,
-            render: (args: any) => { return <DataPreviewGraphNode {...args} /> }
+            Render: (args: any) => { return <DataPreviewGraphNode {...args} /> }
         });
-        this.nodeRegistry.registerType(ScatterPlotNode, {
+        this.nodeRegistry.registerType({
+            ...ScatterPlotNode,
             name: 'Scatter Plot',
-            userCreatable: true,
-            render: (args: any) => { return <ScatterPlotGraphNode {...args} /> }
+            Render: (args: any) => { return <ScatterPlotGraphNode {...args} /> }
         });
 
         this.resolver = new LocalNodeResolver(this.nodeRegistry);
@@ -83,7 +83,7 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
                         <Form.Control size="lg" type="text" placeholder="Large text" />
                     </Form.Group>
 
-                    {Object.entries(this.nodeRegistry.nodeTypes).filter(([t, info]) => info.userCreatable).map(([type, info]) => {
+                    {Object.entries(this.nodeRegistry.nodeTypes).map(([type, info]) => {
                         return <VisualNodeOption key={type} name={info.name} details={{ nodeType: type }} />;
                     })}
                 </Col>
