@@ -47,8 +47,8 @@ export class ScatterPlotGraphNode extends Component<Props> {
         const scaleX = d3.scaleLinear().range([0 + elemSize, area.width - elemSize]).domain(d3.extent(useData, (d: DataEntry) => d.x) as [number, number]);
         const scaleY = d3.scaleLinear().range([area.height - elemSize, 0 + elemSize]).domain(d3.extent(useData, (d: DataEntry) => d.y) as [number, number]);
 
-        return useData.map((xy: DataEntry) => {
-            return <circle cx={scaleX(xy.x)} cy={scaleY(xy.y)} radius={3} fill={"red"}></circle>
+        return useData.map((xy: DataEntry, i) => {
+            return <circle key={i} cx={scaleX(xy.x)} cy={scaleY(xy.y)} r={2} fill={"red"}></circle>
         });
     }
 

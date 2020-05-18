@@ -4,10 +4,10 @@ export default class ScatterPlotNode extends CanvasNode {
     static Type = "ScatterPlotGraph";
 
     static InputFormat = {
-        X: {
+        x: {
             type: "any",
         },
-        Y: {
+        y: {
             type: "any"
         }
     }

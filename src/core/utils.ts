@@ -4,7 +4,7 @@
  * @param pinName the pin name
  */
 export function buildPinId(node: string, pinName: string) {
-    return `${node}-${pinName}`;
+  return `${node}-${pinName}`
 }
 
 /**
@@ -13,8 +13,8 @@ export function buildPinId(node: string, pinName: string) {
  * @param pinId the pin id.
  */
 export function destructPinId(pinId: string) {
-    const parts = pinId.split("-");
-    const dataNode = parts[0];
-    const dataNodePinName = parts[1];
-    return { nodeId: dataNode, pin: dataNodePinName }
+  const parts = pinId.split('-')
+  const dataNode = parts[0]
+  const dataNodePinName = parts[1]
+  return { nodeId: dataNode, pin: dataNodePinName }
 }

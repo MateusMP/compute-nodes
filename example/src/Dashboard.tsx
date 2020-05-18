@@ -14,6 +14,7 @@ import { DataPreviewNode } from './nodes/DataPreviewNode';
 import { ScatterPlotGraphNode } from './nodes/components/ScatterPlotGraphNode';
 import { DataPreviewGraphNode } from './nodes/components/DataPreviewGraphNode';
 import { NumberInputGraphNode } from './nodes/components/NumberInputGraphNode';
+import { RandomDataGraphNode } from './nodes/components/RandomDataGraphNode';
 
 interface DashboardProps {
     columns: any[],
@@ -68,6 +69,11 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
             name: 'Scatter Plot',
             Render: (args: any) => { return <ScatterPlotGraphNode {...args} /> }
         });
+        this.nodeRegistry.registerType({
+            ...RandomDataGraphNode,
+            name: 'Random Data'
+        });
+
 
         this.resolver = new LocalNodeResolver(this.nodeRegistry);
     }

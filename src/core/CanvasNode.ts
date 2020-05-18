@@ -1,47 +1,47 @@
-import { buildPinId } from "./utils";
+import { buildPinId } from './utils'
 
 export interface InputPins {
-    [key: string]: string | undefined
+  [key: string]: string | undefined
 }
 
 export interface ConnectionInfo {
-    node: string;
-    pin: string;
+  node: string
+  pin: string
 }
 
 export function connToPinId(c: ConnectionInfo) {
-    return buildPinId(c.node, c.pin);
+  return buildPinId(c.node, c.pin)
 }
 
 export interface Connection {
-    to: ConnectionInfo;
-    from: ConnectionInfo;
+  to: ConnectionInfo
+  from: ConnectionInfo
 }
 
 /**
  * Base of all nodes
  */
 export class CanvasNode {
-    type: string;
-    id: string;
-    x: number;
-    y: number;
+  type: string
+  id: string
+  x: number
+  y: number
 
-    /**
-     * Incomming connections
-     */
-    inputPins: InputPins;
+  /**
+   * Incomming connections
+   */
+  inputPins: InputPins
 
-    /**
-     * Should hold any persistent data for this node.
-     */
-    data?: any;
+  /**
+   * Should hold any persistent data for this node.
+   */
+  data?: any
 
-    constructor(d: any) {
-        this.id = d.id;
-        this.type = d.type;
-        this.x = d.x;
-        this.y = d.y;
-        this.inputPins = d.inputPins || {};
-    }
+  constructor(d: any) {
+    this.id = d.id
+    this.type = d.type
+    this.x = d.x
+    this.y = d.y
+    this.inputPins = d.inputPins || {}
+  }
 }

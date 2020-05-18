@@ -1,4 +1,4 @@
-import './styles.module.css';
+import './styles.module.css'
 
-export * from './core';
-export * from './components';
+export * from './core'
+export * from './components'
