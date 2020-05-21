@@ -38,6 +38,12 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
     this.dragArea = React.createRef()
     this.minWidth = props.minWidth || '150px'
     this.inputPinChangeHandler = {}
+
+    this.destroyNode = this.destroyNode.bind(this);
+  }
+
+  destroyNode() {
+    this.props.resolver?.destroyNode(this.props.id);
   }
 
   pinChangedAndIsValid(pin: string, before: any, after: any) {
@@ -116,7 +122,7 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
         >
           <Container className='main-node node-drag'>
             <div className='node-remove'>
-              <span role='img' aria-label='delete'>
+              <span role='img' aria-label='delete' onClick={this.destroyNode}>
                 🗑️
               </span>
             </div>

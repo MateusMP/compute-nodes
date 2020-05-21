@@ -11,7 +11,8 @@ import {
   NodeMap,
   NewNodeEvent,
   UpdateNodeEvent,
-  NewConnectionEvent
+  NewConnectionEvent,
+  DeleteNodeEvent
 } from '../core/NodeResolver'
 import { connToPinId } from '../core/CanvasNode'
 
@@ -175,6 +176,7 @@ export class Canvas extends React.Component<OwnProps, State> {
   componentDidMount() {
     this.props.resolver.on(NewNodeEvent, this.resolverStateChanged)
     this.props.resolver.on(UpdateNodeEvent, this.resolverStateChanged)
+    this.props.resolver.on(DeleteNodeEvent, this.resolverStateChanged)
     this.props.resolver.on(NewConnectionEvent, this.resolverStateChanged)
 
     if (this.mainGroup.current && this.dragG.current) {

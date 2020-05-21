@@ -23,34 +23,50 @@ class In1Out1 extends CanvasNode {
   static Type = 'In1Out1'
   static InputFormat = { in: { type: 'any' } }
   static OutputFormat = { out: { type: 'any' } }
-  static construct(args: any) {
+  static Construct(args: any) {
     return new CanvasNode(args)
   }
+  static Render(args: any) {
+    return <div />
+  }
+}
 
-  static render(args: any) {
+
+class In3Out3 extends CanvasNode {
+  static Type = 'In3Out3'
+  static InputFormat = ['in1', 'in2', 'in3'].reduce((map: any, pinName: string) => {
+    map[pinName] = { 'type': 'any' }
+    return map;
+  }, {});
+  static OutputFormat = ['out1', 'out2', 'out3'].reduce((map: any, pinName: string) => {
+    map[pinName] = { 'type': 'any' }
+    return map;
+  }, {});
+
+  static Construct(args: any) {
+    return new CanvasNode(args)
+  }
+  static Render(args: any) {
     return <div />
   }
 }
 
 const nodeRegistry = new NodeRegistry<any>()
 nodeRegistry.registerType(In1Out1)
+nodeRegistry.registerType(In3Out3)
 
 let resolver: TestNodeResolver | null = null
 beforeEach(() => {
   resolver = new TestNodeResolver(nodeRegistry)
 })
 
-afterEach(() => {})
+afterEach(() => { })
 
-it('sum node resolves', () => {
-  let n1: any
-  let n2: any
-  act(() => {
-    n1 = resolver!.createNode('In1Out1', {})
-  })
-  act(() => {
-    n2 = resolver!.createNode('In1Out1', {})
-  })
+it('Check cyclic connections', () => {
+  let n1: CanvasNode
+  let n2: CanvasNode
+  n1 = resolver!.createNode('In1Out1', {})
+  n2 = resolver!.createNode('In1Out1', {})
   expect(n1.id in resolver!.nodes).toBe(true)
   expect(n2.id in resolver!.nodes).toBe(true)
   expect(
@@ -65,4 +81,45 @@ it('sum node resolves', () => {
       buildPinId(n1.id, 'out')
     ) === false
   )
+})
+
+it('Destroying node should destroy all outgoing connections', () => {
+  let n1: CanvasNode
+  let n2: CanvasNode
+
+  n1 = resolver!.createNode('In3Out3', {})
+  n2 = resolver!.createNode('In3Out3', {})
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out1'), buildPinId(n2.id, 'in1'))).toBeTruthy()
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out2'), buildPinId(n2.id, 'in2'))).toBeTruthy()
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out3'), buildPinId(n2.id, 'in3'))).toBeTruthy()
+  expect(n1.id in resolver!.nodes).toBe(true)
+  expect(n2.id in resolver!.nodes).toBe(true)
+  expect(n2.inputPins['in1']).toBe(buildPinId(n1.id, 'out1'))
+  expect(n2.inputPins['in2']).toBe(buildPinId(n1.id, 'out2'))
+  expect(n2.inputPins['in3']).toBe(buildPinId(n1.id, 'out3'))
+  expect(resolver!.destroyNode(n1.id)).toBeTruthy() // node 1 destroyed!!
+  expect(n2.inputPins['in1']).toBeUndefined()
+  expect(n2.inputPins['in2']).toBeUndefined()
+  expect(n2.inputPins['in3']).toBeUndefined()
+})
+
+
+it('Destroying node should destroy all incoming connections', () => {
+  let n1: CanvasNode
+  let n2: CanvasNode
+
+  n1 = resolver!.createNode('In3Out3', {})
+  n2 = resolver!.createNode('In3Out3', {})
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out1'), buildPinId(n2.id, 'in1'))).toBeTruthy()
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out2'), buildPinId(n2.id, 'in2'))).toBeTruthy()
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out3'), buildPinId(n2.id, 'in3'))).toBeTruthy()
+  expect(n1.id in resolver!.nodes).toBe(true)
+  expect(n2.id in resolver!.nodes).toBe(true)
+  expect(n2.inputPins['in1']).toBe(buildPinId(n1.id, 'out1'))
+  expect(n2.inputPins['in2']).toBe(buildPinId(n1.id, 'out2'))
+  expect(n2.inputPins['in3']).toBe(buildPinId(n1.id, 'out3'))
+  expect(resolver!.destroyNode(n2.id)).toBeTruthy() // node 2 destroyed!!
+  expect(n2.inputPins['in1']).toBeUndefined()
+  expect(n2.inputPins['in2']).toBeUndefined()
+  expect(n2.inputPins['in3']).toBeUndefined()
 })
