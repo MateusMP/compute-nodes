@@ -7,6 +7,7 @@ export interface DataFormat {
 
 export default class SumValuesNode extends CanvasNode {
     static Type = "SumNumbers";
+    static Name = "Sum"
 
     static InputFormat = {
         a: {

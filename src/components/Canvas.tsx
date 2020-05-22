@@ -15,6 +15,7 @@ import {
   DeleteNodeEvent
 } from '../core/NodeResolver'
 import { connToPinId } from '../core/CanvasNode'
+import { screenToSvg, snapped } from '../core'
 
 interface SvgCanvasProps {
   children: React.ReactNode
@@ -83,8 +84,8 @@ export class Canvas extends React.Component<OwnProps, State> {
     super(props)
 
     this.state = {
-      nodes: {},
-      connections: {}
+      nodes: props.resolver.getNodes(),
+      connections: props.resolver.getConnections(),
     }
 
     this.variableDropped = this.variableDropped.bind(this)
@@ -97,22 +98,13 @@ export class Canvas extends React.Component<OwnProps, State> {
 
   variableDropped(e: CanvasDropItem, offset: XYCoord) {
     const p = this.svgPoint(offset.x, offset.y)
-    this.props.resolver.createNode(e.nodeType, { x: p[0], y: p[1], ...e })
+    this.props.resolver.createNode(e.nodeType, { x: snapped(p[0]), y: snapped(p[1]), ...e })
   }
 
   svgPoint(x: number, y: number) {
     if (this.mainGroup.current !== null) {
-      const svg: SVGSVGElement = this.mainGroup.current
-        .parentNode as SVGSVGElement
-      var pt = svg.createSVGPoint()
-
-      pt.x = x
-      pt.y = y
-
-      const p = pt.matrixTransform(
-        this.mainGroup.current.getScreenCTM()!.inverse()
-      )
-      return [p.x, p.y]
+      const svg: SVGSVGElement = this.mainGroup.current.parentNode as SVGSVGElement
+      return screenToSvg(svg, this.mainGroup.current, x, y)
     }
     throw new Error('Invalid G group')
   }
@@ -143,6 +135,7 @@ export class Canvas extends React.Component<OwnProps, State> {
         )
         return
       }
+      
       const posA = this.svgPoint(bA.x + VISUAL_OFFSET, bA.y + VISUAL_OFFSET)
       const posB = this.svgPoint(bB.x + VISUAL_OFFSET, bB.y + VISUAL_OFFSET)
 
@@ -199,7 +192,7 @@ export class Canvas extends React.Component<OwnProps, State> {
       setTimeout(() => {
         this.shouldRenderConnections = true
         this.forceUpdate()
-      }, 10)
+      }, 100)
     }
   }
 
@@ -229,8 +222,8 @@ export class Canvas extends React.Component<OwnProps, State> {
         <g ref={this.mainGroup} transform='translate(0,0) scale(1)'>
           <g>
             {this.shouldRenderConnections ? this.renderConnections() : null}
+            <g>{this.renderNodes()}</g>
           </g>
-          <g>{this.renderNodes()}</g>
         </g>
       </SvgCanvas>
     )

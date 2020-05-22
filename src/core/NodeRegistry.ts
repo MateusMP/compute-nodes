@@ -21,6 +21,11 @@ export interface NodeTypeDefinition {
   Type: string
 
   /**
+   * Useful to show in the interface
+   */
+  Name: string
+
+  /**
    * Node input information
    */
   InputFormat: InputFormat | undefined
@@ -51,12 +56,8 @@ export class NodeRegistry<ExtraDefProps = {}> {
   /**
    * Register a new node type
    * @param info the node definition information
-   * @param moreProps extra properties appended to info
    */
-  registerType(info: NodeTypeDefinition & ExtraDefProps, moreProps?: any) {
-    if (moreProps) {
-      info = { ...info, ...moreProps }
-    }
+  registerType(info: NodeTypeDefinition & ExtraDefProps) {
     this.nodeTypes[info.Type] = info
   }
 

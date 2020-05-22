@@ -18,3 +18,20 @@ export function destructPinId(pinId: string) {
   const dataNodePinName = parts[1]
   return { nodeId: dataNode, pin: dataNodePinName }
 }
+
+export function screenToSvg(
+  svg: SVGSVGElement,
+  g: SVGGElement,
+  x: number,
+  y: number
+) {
+  var pt = svg.createSVGPoint()
+  pt.x = x
+  pt.y = y
+  const p = pt.matrixTransform(g.getScreenCTM()!.inverse())
+  return [p.x, p.y]
+}
+
+export function snapped(x: number, size = 16) {
+  return Math.round(x / size) * size
+}

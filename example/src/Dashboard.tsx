@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Container, Form } from 'react-bootstrap';
+import { Row, Col, Container, Form, Button } from 'react-bootstrap';
 
 import { Canvas, ItemTypes } from 'compute-nodes';
 
@@ -50,32 +50,27 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
 
         this.nodeRegistry.registerType({
             ...SumValuesNode,
-            name: 'Sum Values',
             Render: (args: any) => { return <SumValuesGraphNode {...args} /> }
         });
 
         this.nodeRegistry.registerType({
             ...NumberInputNode,
-            name: 'Input Value',
             Render: (args: any) => { return <NumberInputGraphNode {...args} /> }
         });
         this.nodeRegistry.registerType({
             ...DataPreviewNode,
-            name: 'Data Preview',
             Render: (args: any) => { return <DataPreviewGraphNode {...args} /> }
         });
         this.nodeRegistry.registerType({
             ...ScatterPlotNode,
-            name: 'Scatter Plot',
             Render: (args: any) => { return <ScatterPlotGraphNode {...args} /> }
         });
         this.nodeRegistry.registerType({
             ...RandomDataGraphNode,
-            name: 'Random Data'
         });
 
-
         this.resolver = new LocalNodeResolver(this.nodeRegistry);
+        this.resolver.restoreNodes({"mcigvwtfxcshljkheagh0mbme":{"id":"mcigvwtfxcshljkheagh0mbme","type":"SumNumbers","x":672,"y":240,"inputPins":{"b":"ujgwntjulmnmnmofeagh0me75-value","a":"pzyqdeoqxhpymmdheagh1m3gn-sum"}},"ujgwntjulmnmnmofeagh0me75":{"id":"ujgwntjulmnmnmofeagh0me75","type":"InputVariable","x":160,"y":272,"inputPins":{},"data":{"value":"2","name":""}},"pzyqdeoqxhpymmdheagh1m3gn":{"id":"pzyqdeoqxhpymmdheagh1m3gn","type":"SumNumbers","x":400,"y":176,"inputPins":{"a":"ujgwntjulmnmnmofeagh0me75-value","b":"ujgwntjulmnmnmofeagh0me75-value"}}})
     }
 
     render() {
@@ -83,6 +78,7 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
         return <Container fluid>
             <Row>
                 <Col md={1.5} style={{ paddingTop: '10px', paddingLeft: '15px' }}>
+                    <Button onClick={(e:any) => navigator.clipboard.writeText(JSON.stringify(this.resolver.getNodes()))}>Save</Button>
                     <Form.Group>
                         <Form.Control size="lg" type="text" placeholder="Input name">
                         </Form.Control>
@@ -90,7 +86,7 @@ export class Dashboard extends React.Component<DashboardProps, DashboardState> {
                     </Form.Group>
 
                     {Object.entries(this.nodeRegistry.nodeTypes).map(([type, info]) => {
-                        return <VisualNodeOption key={type} name={info.name} details={{ nodeType: type }} />;
+                        return <VisualNodeOption key={type} name={info.Name} details={{ nodeType: type }} />;
                     })}
                 </Col>
                 <Col md>

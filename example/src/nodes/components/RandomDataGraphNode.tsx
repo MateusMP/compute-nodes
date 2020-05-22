@@ -8,9 +8,13 @@ interface OwnProps extends CanvasNode {
     resolver: NodeResolver;
 }
 
+/**
+ * Example single class definition
+ */
 export class RandomDataGraphNode extends Component<OwnProps> {
 
     static Type = "RandomDataGraphNode";
+    static Name = "Random Data";
     static InputFormat = undefined;
     static OutputFormat = {
         data: {

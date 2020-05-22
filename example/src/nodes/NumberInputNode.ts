@@ -2,6 +2,7 @@ import { CanvasNode } from "compute-nodes";
 
 export default class NumberInputNode extends CanvasNode {
     static Type = "InputVariable";
+    static Name = "Input Variable"
 
     data: {
         value: any,

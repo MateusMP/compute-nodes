@@ -2,6 +2,7 @@ import { CanvasNode } from "compute-nodes";
 
 export default class ScatterPlotNode extends CanvasNode {
     static Type = "ScatterPlotGraph";
+    static Name = "Scatter Plot"
 
     static InputFormat = {
         x: {

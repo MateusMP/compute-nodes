@@ -3,7 +3,6 @@ import { CanvasNode, NodeRegistry, NodeResolver, InputFormat, buildPinId, destru
 
 export interface LocalNodeDefinition {
     LocalResolve(node: CanvasNode, input: any): any;
-    name: string
 }
 
 export class LocalNodeRegistry extends NodeRegistry<LocalNodeDefinition> {

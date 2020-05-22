@@ -1,10 +1,13 @@
 import { CanvasNode, Connection, connToPinId } from './CanvasNode'
 import { NodeRegistry, InputFormat } from './NodeRegistry'
 import { destructPinId, buildPinId } from './utils'
-import { Prev } from 'react-bootstrap/PageItem'
 
 export interface ConnectionMap {
   [key: string]: Connection
+}
+
+export interface ConnectionMapFrom {
+  [key: string]: Connection[]
 }
 
 export interface NodeMap {
@@ -24,7 +27,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
   nodes: NodeMap
   handlers: { [key: string]: Function[] }
   linksByTo: ConnectionMap
-  linksByFrom: ConnectionMap
+  linksByFrom: ConnectionMapFrom
 
   constructor(registry: T, nodes?: any) {
     this.registry = registry
@@ -33,11 +36,6 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     this.linksByTo = {}
     this.linksByFrom = {}
     this.setupNodes(nodes)
-  }
-
-  private setupNodes(nodes: any) {
-    this.nodes = nodes
-    this.bakeConnections(nodes)
   }
 
   restoreNodes(nodes: NodeMap) {
@@ -79,6 +77,17 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
   }
 
   /**
+   * Get current nodes
+   */
+  getNodes(): NodeMap {
+    return this.nodes
+  }
+
+  getConnections(): ConnectionMap {
+    return this.linksByTo
+  }
+
+  /**
    * Render a node, also embeds some properties such as a reference to the resolver.
    * @param node the node to be rendered
    */
@@ -103,13 +112,12 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
   }
 
   /**
-   * @param nodeId 
+   * @param nodeId
    * @returns true if the node is destroyed
    */
   destroyNode(nodeId: string) {
     const node = this.nodes[nodeId]
     if (node) {
-
       // Delete incoming connections
       if (node.inputPins) {
         Object.keys(node.inputPins).forEach((pinName) =>
@@ -128,7 +136,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       delete this.nodes[nodeId]
 
       this.issueEvent(DeleteNodeEvent, node)
-      return true;
+      return true
     }
     return false
   }
@@ -164,25 +172,34 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     )
 
     this.nodes[receiveing.nodeId].inputPins[receiveing.pin] = from
-    this.linksByFrom[from] = connection
+    const linkFrom = this.linksByFrom[from]
+    if (linkFrom) {
+      linkFrom.push(connection)
+    } else {
+      this.linksByFrom[from] = [connection]
+    }
     this.linksByTo[to] = connection
     this.issueEvent(NewConnectionEvent, connection)
     return connection
   }
 
   destroyConnection(pinId: string) {
-    let prev: Connection | undefined = undefined;
     if (pinId in this.linksByTo) {
-      prev = this.linksByTo[pinId]
-    }
-    else if (pinId in this.linksByFrom) {
-      prev = this.linksByFrom[pinId]
-    }
-    if (prev) {
+      const prev = this.linksByTo[pinId]
       delete this.linksByFrom[connToPinId(prev.from)]
       delete this.linksByTo[connToPinId(prev.to)]
       delete this.nodes[prev.to.node].inputPins[prev.to.pin]
-      return prev;
+    } else if (pinId in this.linksByFrom) {
+      const { nodeId, pin } = destructPinId(pinId)
+      const links = this.linksByFrom[pinId]
+      for (let i = 0; i < links.length; ++i) {
+        const conn = links[i]
+        if (conn.from.node === nodeId && conn.from.pin === pin) {
+          delete this.nodes[conn.to.node].inputPins[conn.to.pin]
+          delete this.linksByTo[connToPinId(conn.to)]
+          this.linksByFrom[pinId] = links.filter((_, j) => j !== i)
+        }
+      }
     }
 
     return false
@@ -206,6 +223,11 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
 
   //
 
+  private setupNodes(nodes: any) {
+    this.nodes = nodes
+    this.bakeConnections(nodes)
+  }
+
   private bakeConnections(nodes: any) {
     this.linksByTo = {}
     this.linksByFrom = {}
@@ -222,7 +244,12 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
             const fromPinId = node.inputPins[toPinName]
             const conn = this.buildNewConnection(fromPinId, nodeId, toPinName)
             this.linksByTo[toPinId] = conn
-            this.linksByFrom[fromPinId] = conn
+            const fromList = this.linksByFrom[fromPinId]
+            if (fromList) {
+              this.linksByFrom[fromPinId].push(conn)
+            } else {
+              this.linksByFrom[fromPinId] = [conn]
+            }
           }
         })
       }
@@ -243,7 +270,9 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       Object.keys(nodeOutputs).forEach((pinName) => {
         const checkPin = this.linksByFrom[buildPinId(node.id, pinName)]
         if (checkPin) {
-          uniqueOutputs.add(checkPin.to.node)
+          checkPin.forEach((link) => {
+            uniqueOutputs.add(link.to.node)
+          })
         }
       })
     }

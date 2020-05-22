@@ -4,8 +4,12 @@ export interface DataFormat {
     A: any
 }
 
-export class DataPreviewNode extends CanvasNode {
+/**
+ * This component doesn't have any special data states
+ */
+export class DataPreviewNode {
     static Type = "DataPreview";
+    static Name = "Data Preview"
 
     static InputFormat = {
         a: {
@@ -16,7 +20,7 @@ export class DataPreviewNode extends CanvasNode {
     static OutputFormat = undefined;
 
     static Construct = (args: any) =>{
-        return new DataPreviewNode(args);
+        return new CanvasNode(args);
     }
     static LocalResolve = (args: any, input: any) => {
         return input;

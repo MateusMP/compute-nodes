@@ -1,5 +1,4 @@
 import React from 'react'
-import { act } from 'react-dom/test-utils'
 import { NodeResolver } from '../../core/NodeResolver'
 import { CanvasNode } from '../../core/CanvasNode'
 import { InputFormat, NodeRegistry } from '../../core/NodeRegistry'
@@ -83,6 +82,28 @@ it('Check cyclic connections', () => {
   )
 })
 
+it('Create invalid connection', () => {
+  let n1: CanvasNode
+  let n2: CanvasNode
+  n1 = resolver!.createNode('In1Out1', {})
+  n2 = resolver!.createNode('In1Out1', {})
+  expect(resolver!.createPinConnection(
+      buildPinId(n1.id, 'out-bad'),
+      buildPinId(n2.id, 'out-bad')
+    ) !== false
+  )
+  expect(resolver!.createPinConnection(
+      buildPinId(n1.id, 'out-bad'),
+      buildPinId(n1.id, 'out')
+    ) === false
+  )
+  expect(resolver!.createPinConnection(
+    buildPinId(n1.id, 'out'),
+    buildPinId(n1.id, 'out-bad')
+  ) === false
+)
+})
+
 it('Destroying node should destroy all outgoing connections', () => {
   let n1: CanvasNode
   let n2: CanvasNode
@@ -119,6 +140,24 @@ it('Destroying node should destroy all incoming connections', () => {
   expect(n2.inputPins['in2']).toBe(buildPinId(n1.id, 'out2'))
   expect(n2.inputPins['in3']).toBe(buildPinId(n1.id, 'out3'))
   expect(resolver!.destroyNode(n2.id)).toBeTruthy() // node 2 destroyed!!
+  expect(n2.inputPins['in1']).toBeUndefined()
+  expect(n2.inputPins['in2']).toBeUndefined()
+  expect(n2.inputPins['in3']).toBeUndefined()
+})
+
+
+
+it('Destroying node should destroy all outgoing connections from the same pin', () => {
+  
+  const n1 = resolver!.createNode('In1Out1', {})
+  const n2 = resolver!.createNode('In3Out3', {})
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out'), buildPinId(n2.id, 'in1'))).toBeTruthy()
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out'), buildPinId(n2.id, 'in2'))).toBeTruthy()
+  expect(resolver!.createPinConnection(buildPinId(n1.id, 'out'), buildPinId(n2.id, 'in3'))).toBeTruthy()
+  expect(n2.inputPins['in1']).toBe(buildPinId(n1.id, 'out'))
+  expect(n2.inputPins['in2']).toBe(buildPinId(n1.id, 'out'))
+  expect(n2.inputPins['in3']).toBe(buildPinId(n1.id, 'out'))
+  expect(resolver!.destroyNode(n1.id)).toBeTruthy()
   expect(n2.inputPins['in1']).toBeUndefined()
   expect(n2.inputPins['in2']).toBeUndefined()
   expect(n2.inputPins['in3']).toBeUndefined()

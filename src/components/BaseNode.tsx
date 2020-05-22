@@ -1,10 +1,10 @@
 import React, { ReactNode } from 'react'
 import { Container, Row, Col } from 'react-bootstrap'
 
-import * as d3 from 'd3'
 import { CanvasNode } from '../core/CanvasNode'
 import { InputFormat } from '../core/NodeRegistry'
 import { NodeResolver } from '../core/NodeResolver'
+import { screenToSvg, snapped } from '../core/utils'
 
 export interface PinData {
   [key: string]: any
@@ -30,6 +30,7 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
   dragArea: any
   minWidth: string
   inputPinChangeHandler: any
+  coords: any;
 
   constructor(props: BaseNodeProps) {
     super(props)
@@ -40,6 +41,11 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
     this.inputPinChangeHandler = {}
 
     this.destroyNode = this.destroyNode.bind(this);
+
+    this.handleMouseDown = this.handleMouseDown.bind(this);
+    this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.moveElement = this.moveElement.bind(this);
   }
 
   destroyNode() {
@@ -51,56 +57,68 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
     return before.inputPins[pin] !== afterPin && afterPin
   }
 
-  registerForDragging(element: SVGForeignObjectElement) {
-    const that = this
-
-    function dragstarted(d: any) {
-      d.x = d3.event.x
-      d.y = d3.event.y
-      d3.select(that.dragArea.current).attr('x', d.x).attr('y', d.y)
-      // that.props.canvas.updateNodePosition(that.props.instance.id, d.x,d.y);
+  handleMouseDown(e: any) {
+    let el = e.target
+    let i = 0
+    while (i < 20 && el) {
+      if (el instanceof HTMLInputElement) {
+        return;
+      }
+      if (el.classList && el.classList.contains('node-nodrag')) {
+        return
+      }
+      el = el.parentNode
+      i++
     }
 
-    function dragged(d: any) {
-      d.x = d3.event.x
-      d.y = d3.event.y
-      // d3.select(that.dragArea.current).attr("x", d.x).attr("y", d.y);
-      that.props.resolver!.updateNode(that.props.id, { x: d.x, y: d.y })
+    const g = e.target.closest("g");
+    const svg = g.closest("svg")
+    if (svg) {
+      const p = screenToSvg(svg, g, e.pageX, e.pageY);
+      this.coords = {
+        x: snapped(p[0]),
+        y: snapped(p[1]),
+        g: g,
+        svg: svg
+      }
+      e.preventDefault()
+      e.stopPropagation()
+      document.addEventListener('mousemove', this.handleMouseMove);
+      document.addEventListener('mouseup', this.handleMouseUp)
     }
+  };
 
-    function dragended(this: any, d: any) {
-      dragged(d)
-      d3.select(this).style('border', null)
+  handleMouseUp(e: any) {
+    if (this.coords) {
+      document.removeEventListener('mousemove', this.handleMouseMove);
+      document.removeEventListener('mouseup', this.handleMouseUp);
+      this.handleMouseMove(e)
+      this.coords = null;
     }
+  };
 
-    const dragCall = d3
-      .drag<SVGForeignObjectElement, any>()
-      .filter(() => {
-        let el = d3.event.target
-        let i = 0
-        while (i < 20 && el) {
-          if (el.classList && el.classList.contains('node-nodrag')) {
-            return false
-          }
-          el = el.parentNode
-          i++
-        }
-        return true
-      })
-      .on('start', dragstarted)
-      .on('drag', dragged)
-      .on('end', dragended)
-
-    const { x, y } = this.props
-    d3.select(element).data([{ x, y }]).call(dragCall)
+  handleMouseMove(e: any) {
+    if (this.coords) {
+      e.preventDefault()
+      e.stopPropagation()
+      this.moveElement(e.pageX, e.pageY)
+    }
   }
+
+  moveElement(x: number, y: number) {
+    const p = screenToSvg(this.coords.svg, this.coords.g, x, y);
+
+    const xDiff = snapped(this.coords.x - p[0]);
+    const yDiff = snapped(this.coords.y - p[1]);
+
+    this.coords.x = snapped(p[0]);
+    this.coords.y = snapped(p[1]);
+
+    this.props.resolver!.updateNode(this.props.id, { x: snapped(this.props.x - xDiff), y: snapped(this.props.y - yDiff) })
+  };
 
   getContent(): React.ReactNode {
     return null
-  }
-
-  componentDidMount() {
-    this.registerForDragging(this.dragArea.current)
   }
 
   render() {
@@ -117,6 +135,8 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
       >
         <div
           ref={this.dragArea}
+          onMouseDown={this.handleMouseDown}
+          onMouseUp={this.handleMouseUp}
           title={this.props.title}
           className={`node ${hasError ? 'error' : ''}`}
         >

@@ -1,6 +1,5 @@
-import { act } from "react-dom/test-utils";
 import { LocalNodeResolver, LocalNodeRegistry } from "../resolver/LocalNodeResolver";
-import { buildPinId } from "compute-nodes";
+import { buildPinId, CanvasNode } from "compute-nodes";
 import SumValuesNode from "../nodes/SumValuesNode";
 import NumberInputNode from "../nodes/NumberInputNode";
 
@@ -37,11 +36,11 @@ const testData: any = {
 Object.keys(testData).forEach(id => testData[id].id = id); // embed ids
 
 const registry = new LocalNodeRegistry();
-registry.registerType(SumValuesNode);
-registry.registerType(NumberInputNode);
+registry.registerType({ ...SumValuesNode, Render: () => null });
+registry.registerType({ ...NumberInputNode, Render: () => null });
 
 it("sum node resolves", () => {
-    act(() => { resolver = new LocalNodeResolver(registry, testData); });
+    resolver = new LocalNodeResolver(registry, testData);
     expect(resolver!.resolveNode(testData.sumNode).sum).toBe(7);
     expect(resolver!.pinData[buildPinId(testData.sumNode.id, SumValuesNode.outSum)]).toBe(7);
     expect(resolver!.resolveNode(testData.sumNode2).sum).toBe(14);
