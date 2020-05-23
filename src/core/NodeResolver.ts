@@ -19,6 +19,15 @@ export const UpdateNodeEvent = 'node-update'
 export const DeleteNodeEvent = 'node-delete'
 export const NewConnectionEvent = 'connection-new'
 
+export interface ResolverEvent {
+  type: string
+  nodes?: NodeMap
+  connections?: ConnectionMap
+  node?: CanvasNode
+  connection?: Connection
+  [key: string]: any
+}
+
 /**
  * Keeps state of nodes and connections
  */
@@ -31,11 +40,11 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
 
   constructor(registry: T, nodes?: any) {
     this.registry = registry
-    this.nodes = nodes
+    this.nodes = nodes || {}
     this.handlers = {}
     this.linksByTo = {}
     this.linksByFrom = {}
-    this.setupNodes(nodes)
+    this.setupNodes(this.nodes)
   }
 
   restoreNodes(nodes: NodeMap) {
@@ -107,7 +116,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
   createNode(type: string, { ...args }: any) {
     const node = this.registry.instantiateNewNode(type, args)
     this.nodes = { ...this.nodes, [node.id]: node }
-    this.issueEvent(NewNodeEvent, node)
+    this.issueEvent({ type: NewNodeEvent, nodes: this.nodes, node })
     return node
   }
 
@@ -121,7 +130,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       // Delete incoming connections
       if (node.inputPins) {
         Object.keys(node.inputPins).forEach((pinName) =>
-          this.destroyConnection(buildPinId(nodeId, pinName))
+          this.internalDestroyConnection(buildPinId(nodeId, pinName))
         )
       }
 
@@ -129,13 +138,19 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       const outputFormat = this.registry.getNodeTypeInfo(node.type).OutputFormat
       if (outputFormat) {
         Object.keys(outputFormat).forEach((pinName) => {
-          this.destroyConnection(buildPinId(nodeId, pinName))
+          this.internalDestroyConnection(buildPinId(nodeId, pinName))
         })
       }
 
+      this.nodes = { ...this.nodes }
       delete this.nodes[nodeId]
 
-      this.issueEvent(DeleteNodeEvent, node)
+      this.issueEvent({
+        type: DeleteNodeEvent,
+        nodes: this.nodes,
+        connections: this.linksByTo,
+        node
+      })
       return true
     }
     return false
@@ -146,10 +161,40 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
    * @param id the node id that is changing
    * @param changes object with patch information
    */
-  updateNode(id: string, changes: any) {
+  updateNode(id: string, changes: any, eventInfo: object = {}) {
     const updatedNode: CanvasNode = { ...this.nodes[id], ...changes }
     this.nodes = { ...this.nodes, [id]: updatedNode }
-    this.issueEvent(UpdateNodeEvent, updatedNode)
+    this.issueEvent({
+      type: UpdateNodeEvent,
+      nodes: this.nodes,
+      connections: this.linksByTo,
+      node: updatedNode,
+      ...eventInfo
+    })
+  }
+
+  isValidInputPin(pinId: string): boolean {
+    const { nodeId, pin } = destructPinId(pinId)
+    if (nodeId in this.nodes) {
+      const input = this.registry.getNodeTypeInfo(this.nodes[nodeId].type)
+        .InputFormat
+      if (input && pin in input) {
+        return true
+      }
+    }
+    return false
+  }
+
+  isValidOutputPin(pinId: string): boolean {
+    const { nodeId, pin } = destructPinId(pinId)
+    if (nodeId in this.nodes) {
+      const output = this.registry.getNodeTypeInfo(this.nodes[nodeId].type)
+        .OutputFormat
+      if (output && pin in output) {
+        return true
+      }
+    }
+    return false
   }
 
   /**
@@ -162,7 +207,14 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       return false
     }
 
-    this.destroyConnection(to)
+    if (!this.isValidOutputPin(from) || !this.isValidInputPin(to)) {
+      return false
+    }
+
+    this.nodes = { ...this.nodes }
+    this.linksByTo = { ...this.linksByTo }
+    this.linksByFrom = { ...this.linksByFrom }
+    this.internalDestroyConnection(to)
 
     const receiveing = destructPinId(to)
     const connection = this.buildNewConnection(
@@ -171,7 +223,12 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       receiveing.pin
     )
 
-    this.nodes[receiveing.nodeId].inputPins[receiveing.pin] = from
+    const node = this.nodes[receiveing.nodeId]
+    const updatedNode = {
+      ...node,
+      inputPins: { ...node.inputPins, [receiveing.pin]: from }
+    }
+    this.nodes = { ...this.nodes, [node.id]: updatedNode }
     const linkFrom = this.linksByFrom[from]
     if (linkFrom) {
       linkFrom.push(connection)
@@ -179,11 +236,19 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       this.linksByFrom[from] = [connection]
     }
     this.linksByTo[to] = connection
-    this.issueEvent(NewConnectionEvent, connection)
+    this.issueEvent({
+      type: NewConnectionEvent,
+      nodes: this.nodes,
+      connections: this.linksByTo,
+      connection
+    })
     return connection
   }
 
-  destroyConnection(pinId: string) {
+  /**
+   * @param pinId
+   */
+  private internalDestroyConnection(pinId: string) {
     if (pinId in this.linksByTo) {
       const prev = this.linksByTo[pinId]
       delete this.linksByFrom[connToPinId(prev.from)]
@@ -279,11 +344,11 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     return uniqueOutputs
   }
 
-  private issueEvent(event: string, ...data: any) {
-    const handlers = this.handlers[event]
+  private issueEvent(event: ResolverEvent) {
+    const handlers = this.handlers[event.type]
     if (handlers) {
       handlers.forEach((handler: any) => {
-        handler(this.nodes, this.linksByTo, data)
+        handler(event)
       })
     }
   }

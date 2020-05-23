@@ -4,14 +4,20 @@ import { Container, Row, Col } from 'react-bootstrap'
 import { CanvasNode } from '../core/CanvasNode'
 import { InputFormat } from '../core/NodeRegistry'
 import { NodeResolver } from '../core/NodeResolver'
-import { screenToSvg, snapped } from '../core/utils'
+import { snapped, shouldAllowInputEvent } from '../core/utils'
+
+import { drag as d3drag } from 'd3-drag'
+import { select as d3select, event as d3event } from 'd3-selection'
+
+//import * as d3 from 'd3'
 
 export interface PinData {
   [key: string]: any
 }
 
 export interface BaseNodeProps extends CanvasNode {
-  minWidth?: string
+  minWidth?: number
+  minHeight?: number
   data?: PinData
   error?: boolean
   children: ReactNode
@@ -28,7 +34,6 @@ export interface BaseNodeProps extends CanvasNode {
  */
 export class BaseNode extends React.Component<BaseNodeProps, any> {
   dragArea: any
-  minWidth: string
   inputPinChangeHandler: any
   coords: any;
 
@@ -37,15 +42,9 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
     this.state = {}
 
     this.dragArea = React.createRef()
-    this.minWidth = props.minWidth || '150px'
     this.inputPinChangeHandler = {}
 
     this.destroyNode = this.destroyNode.bind(this);
-
-    this.handleMouseDown = this.handleMouseDown.bind(this);
-    this.handleMouseUp = this.handleMouseUp.bind(this);
-    this.handleMouseMove = this.handleMouseMove.bind(this);
-    this.moveElement = this.moveElement.bind(this);
   }
 
   destroyNode() {
@@ -57,68 +56,47 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
     return before.inputPins[pin] !== afterPin && afterPin
   }
 
-  handleMouseDown(e: any) {
-    let el = e.target
-    let i = 0
-    while (i < 20 && el) {
-      if (el instanceof HTMLInputElement) {
-        return;
-      }
-      if (el.classList && el.classList.contains('node-nodrag')) {
-        return
-      }
-      el = el.parentNode
-      i++
-    }
-
-    const g = e.target.closest("g");
-    const svg = g.closest("svg")
-    if (svg) {
-      const p = screenToSvg(svg, g, e.pageX, e.pageY);
-      this.coords = {
-        x: snapped(p[0]),
-        y: snapped(p[1]),
-        g: g,
-        svg: svg
-      }
-      e.preventDefault()
-      e.stopPropagation()
-      document.addEventListener('mousemove', this.handleMouseMove);
-      document.addEventListener('mouseup', this.handleMouseUp)
-    }
-  };
-
-  handleMouseUp(e: any) {
-    if (this.coords) {
-      document.removeEventListener('mousemove', this.handleMouseMove);
-      document.removeEventListener('mouseup', this.handleMouseUp);
-      this.handleMouseMove(e)
-      this.coords = null;
-    }
-  };
-
-  handleMouseMove(e: any) {
-    if (this.coords) {
-      e.preventDefault()
-      e.stopPropagation()
-      this.moveElement(e.pageX, e.pageY)
-    }
+  componentDidUpdate() {
+    const { x, y } = this.props
+    d3select(this.dragArea.current).data([{ x, y }])
   }
 
-  moveElement(x: number, y: number) {
-    const p = screenToSvg(this.coords.svg, this.coords.g, x, y);
+  registerForDragging(element: SVGForeignObjectElement) {
+    const that = this
 
-    const xDiff = snapped(this.coords.x - p[0]);
-    const yDiff = snapped(this.coords.y - p[1]);
+    function dragstarted(d: any) {
+      d.x = d3event.x
+      d.y = d3event.y
+    }
 
-    this.coords.x = snapped(p[0]);
-    this.coords.y = snapped(p[1]);
+    function dragged(d: any) {
+      d.x = d3event.x
+      d.y = d3event.y
+      d3select(that.dragArea.current.parentNode).attr('x', snapped(d.x)).attr('y', snapped(d.y))
+      that.props.resolver!.updateNode(that.props.id, { x: snapped(d.x), y: snapped(d.y) }, { nohistory: true })
+    }
 
-    this.props.resolver!.updateNode(this.props.id, { x: snapped(this.props.x - xDiff), y: snapped(this.props.y - yDiff) })
-  };
+    function dragended(this: any, d: any) {
+      d.x = d3event.x
+      d.y = d3event.y
+      d3select(that.dragArea.current.parentNode).attr('x', snapped(d.x)).attr('y', snapped(d.y))
+      if (that.props.x !== d.x || that.props.y !== d.y) {
+        that.props.resolver!.updateNode(that.props.id, { x: snapped(d.x), y: snapped(d.y) })
+      }
+    }
 
-  getContent(): React.ReactNode {
-    return null
+    const dragCall = d3drag<SVGForeignObjectElement, any>()
+      .filter(() => shouldAllowInputEvent(d3event.target))
+      .on('start', dragstarted)
+      .on('drag', dragged)
+      .on('end', dragended)
+
+    const { x, y } = this.props
+    d3select(element).data([{ x, y }]).call(dragCall)
+  }
+
+  componentDidMount() {
+    this.registerForDragging(this.dragArea.current)
   }
 
   render() {
@@ -129,14 +107,12 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
       <foreignObject
         x={x}
         y={y}
-        width={this.minWidth}
-        height={5}
+        width={this.props.minWidth || 160}
+        height={this.props.minHeight || 160}
         className='embedded-node'
       >
         <div
           ref={this.dragArea}
-          onMouseDown={this.handleMouseDown}
-          onMouseUp={this.handleMouseUp}
           title={this.props.title}
           className={`node ${hasError ? 'error' : ''}`}
         >

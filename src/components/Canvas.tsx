@@ -12,10 +12,11 @@ import {
   NewNodeEvent,
   UpdateNodeEvent,
   NewConnectionEvent,
-  DeleteNodeEvent
+  DeleteNodeEvent,
+  ResolverEvent
 } from '../core/NodeResolver'
 import { connToPinId } from '../core/CanvasNode'
-import { screenToSvg, snapped } from '../core'
+import { screenToSvg, snapped, shouldAllowInputEvent } from '../core'
 
 interface SvgCanvasProps {
   children: React.ReactNode
@@ -67,6 +68,11 @@ interface Transform {
   zoom: number
 }
 
+interface UndoEntry {
+  data: NodeMap
+  description: string
+}
+
 /**
  * Canvas responsible to render the nodes and links
  * Will listen to events from {@link NodeResolver}
@@ -76,6 +82,8 @@ export class Canvas extends React.Component<OwnProps, State> {
   mainGroup: React.RefObject<SVGGElement>
   dragG: React.RefObject<SVGGElement>
   shouldRenderConnections = false
+  undo: UndoEntry[]
+  undoIndex: number
 
   /**
    * @param props @see {@link OwnProps} for details
@@ -88,6 +96,8 @@ export class Canvas extends React.Component<OwnProps, State> {
       connections: props.resolver.getConnections(),
     }
 
+    this.undo = [{ data: this.state.nodes, description: "Start" }]
+    this.undoIndex = 0;
     this.variableDropped = this.variableDropped.bind(this)
     this.mainGroup = React.createRef<SVGGElement>()
     this.dragG = React.createRef<SVGGElement>()
@@ -103,7 +113,7 @@ export class Canvas extends React.Component<OwnProps, State> {
 
   svgPoint(x: number, y: number) {
     if (this.mainGroup.current !== null) {
-      const svg: SVGSVGElement = this.mainGroup.current.parentNode as SVGSVGElement
+      const svg: SVGSVGElement = this.mainGroup.current.closest("svg") as SVGSVGElement
       return screenToSvg(svg, this.mainGroup.current, x, y)
     }
     throw new Error('Invalid G group')
@@ -135,7 +145,7 @@ export class Canvas extends React.Component<OwnProps, State> {
         )
         return
       }
-      
+
       const posA = this.svgPoint(bA.x + VISUAL_OFFSET, bA.y + VISUAL_OFFSET)
       const posB = this.svgPoint(bB.x + VISUAL_OFFSET, bB.y + VISUAL_OFFSET)
 
@@ -156,13 +166,54 @@ export class Canvas extends React.Component<OwnProps, State> {
     return a
   }
 
-  resolverStateChanged(nodes: any, connections: any) {
-    this.setState({ nodes, connections })
+  resolverStateChanged(event: ResolverEvent) {
+    if (event.nodes && !event.nohistory) {
+      this.saveNodeHistory(event.nodes)
+    }
+
+    this.setState({
+      nodes: event.nodes ? event.nodes : this.state.nodes,
+      connections: event.connections ? event.connections : this.state.connections
+    })
+  }
+
+  saveNodeHistory(nodes: any) {
+    // Clear future history
+    this.undo = this.undo.slice(0, this.undoIndex + 1);
+
+    // Save new history
+    const undodata = { data: nodes, description: "state?" }
+    this.undo.push(undodata)
+    this.undoIndex++;
+  }
+
+  redoOnce() {
+    if (this.undoIndex + 1 < this.undo.length) {
+      this.undoIndex++;
+      this.useFromHistory();
+    }
+  }
+
+  useFromHistory() {
+    const nodes = this.undo[this.undoIndex]
+    this.props.resolver.restoreNodes(nodes.data)
+    this.setState({
+      nodes: this.props.resolver.getNodes(),
+      connections: this.props.resolver.getConnections(),
+    })
+  }
+
+  undoOnce() {
+    if (this.undoIndex !== 0) {
+      this.undoIndex--;
+      this.useFromHistory();
+    }
   }
 
   componentWillUnmount() {
     this.props.resolver.unbind(NewNodeEvent, this.resolverStateChanged)
     this.props.resolver.unbind(UpdateNodeEvent, this.resolverStateChanged)
+    this.props.resolver.unbind(DeleteNodeEvent, this.resolverStateChanged)
     this.props.resolver.unbind(NewConnectionEvent, this.resolverStateChanged)
   }
 
@@ -176,7 +227,9 @@ export class Canvas extends React.Component<OwnProps, State> {
       const that = this
       const g = d3.select(this.mainGroup.current)
       d3.select(this.dragG.current).call(
-        d3.zoom<SVGGElement, any>().on('zoom', function () {
+        d3.zoom<SVGGElement, any>()
+        .filter(() => shouldAllowInputEvent(d3.event.target))
+        .on('zoom', function () {
           that.transform = {
             x: d3.event.transform.x,
             y: d3.event.transform.y,
@@ -192,7 +245,7 @@ export class Canvas extends React.Component<OwnProps, State> {
       setTimeout(() => {
         this.shouldRenderConnections = true
         this.forceUpdate()
-      }, 100)
+      }, 50)
     }
   }
 
@@ -218,11 +271,9 @@ export class Canvas extends React.Component<OwnProps, State> {
             fill='white'
             style={{ visibility: 'hidden', pointerEvents: 'all' }}
           />
-        </g>
-        <g ref={this.mainGroup} transform='translate(0,0) scale(1)'>
-          <g>
-            {this.shouldRenderConnections ? this.renderConnections() : null}
-            <g>{this.renderNodes()}</g>
+          <g ref={this.mainGroup} transform='translate(0,0) scale(1)'>
+              {this.shouldRenderConnections ? this.renderConnections() : null}
+              <g>{this.renderNodes()}</g>
           </g>
         </g>
       </SvgCanvas>

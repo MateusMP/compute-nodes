@@ -61,7 +61,7 @@ svg {
     cursor: move;
 }
 
-.node .node-nodrag:hover {
+.node .node-noglobals:hover {
     cursor: auto;
 }
 
@@ -141,11 +141,12 @@ div.main-node {
 .node .node-remove:hover {
     cursor: pointer;
     border: solid #DDD 2px;
-    opacity: 100%;
+    opacity: 1;
     background-color: white;
 }
 
 .node .node-remove {
+    text-align: center;
     border: none;
     position: absolute;
     right: 8px;

@@ -61,7 +61,7 @@ svg {
     cursor: move;
 }
 
-.node .node-nodrag:hover {
+.node .node-noglobals:hover {
     cursor: auto;
 }
 

@@ -35,3 +35,18 @@ export function screenToSvg(
 export function snapped(x: number, size = 16) {
   return Math.round(x / size) * size
 }
+
+export function shouldAllowInputEvent(el: any) {
+  let i = 0
+  while (i < 20 && el) {
+    if (el instanceof HTMLInputElement) {
+      return false
+    }
+    if (el.classList && el.classList.contains('node-noglobals')) {
+      return false
+    }
+    el = el.parentNode
+    i++
+  }
+  return true
+}

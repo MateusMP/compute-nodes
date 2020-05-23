@@ -5,6 +5,8 @@
 
 ![Alt text](.github/images/node-example.png?raw=true "Compute Nodes")
 
+[Online Demo!](https://mateusmp.github.io/compute-nodes/)
+
 ## Install
 
 ```bash

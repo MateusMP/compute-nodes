@@ -62,9 +62,9 @@ export class DataPreviewGraphNode extends Component<OwnProps> {
 
     render() {
         return (<AutoBaseNode {...this.props}
-            title="Data Preview" minWidth="200px"
+            title="Data Preview" minWidth={250} minHeight={250}
             input={DataPreviewNode.InputFormat}>
-            <div className="gn-data-preview container"
+            <div className="gn-data-preview container node-noglobals"
                 style={{
                     maxHeight: "100px"
                 }}>
