@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 
-import { Row } from 'react-bootstrap';
-
 import { AutoBaseNode } from 'compute-nodes';
 import ScatterPlotNode from '../ScatterPlotNode';
 
@@ -55,11 +53,11 @@ export class ScatterPlotGraphNode extends Component<Props> {
     render() {
         return (<AutoBaseNode title="Scatter Plot" minWidth={480} minHeight={480} {...this.props}
             input={ScatterPlotNode.InputFormat} output={ScatterPlotNode.OutputFormat}>
-            <Row>
+            <div>
                 <svg width="95%" height="100%" viewBox="0,0,100, 70" className="node-noglobals">
                     {this.buildgraph(this.props.resolvedData.x, this.props.resolvedData.y)}
                 </svg>
-            </Row>
+            </div>
         </AutoBaseNode>);
     }
 }

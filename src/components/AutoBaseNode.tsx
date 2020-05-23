@@ -1,7 +1,5 @@
 import React from 'react'
 
-import { Row, Col } from 'react-bootstrap'
-
 import { InputPin, OutputPin } from './Pin'
 import { BaseNode, BaseNodeProps } from './BaseNode'
 
@@ -45,26 +43,19 @@ export class AutoBaseNode extends React.Component<OwnProps, any> {
         })
       : null
 
-    const mdIn = this.props.input ? 2 : 0
-    const mdOut = this.props.output
-      ? this.props.mdOut
-        ? this.props.mdOut
-        : 2
-      : 0
-
     return (
       <BaseNode {...this.props} error={hasError}>
-        <Row>
-          {mdIn ? (
-            <Col md={mdIn} className='ignore-mouse'>
+        <div className="node-body">
+          {this.props.input ? (
+            <div className='ignore-mouse inputs'>
               {inputPins}
-            </Col>
+            </div>
           ) : null}
 
-          <Col md={12 - mdIn - mdOut}>{this.props.children}</Col>
+          <div className="contents">{this.props.children}</div>
 
-          {mdOut ? <Col md={mdOut}>{outputPins}</Col> : null}
-        </Row>
+          {this.props.output ? <div className="outputs">{outputPins}</div> : null}
+        </div>
       </BaseNode>
     )
   }

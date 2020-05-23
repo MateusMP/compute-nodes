@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Container, Form, Button } from 'react-bootstrap';
+import { Row, Col, Container, Button } from 'react-bootstrap';
 
 import { Canvas, ItemTypes } from 'compute-nodes';
 

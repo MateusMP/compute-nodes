@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react'
-import { Container, Row, Col } from 'react-bootstrap'
+import { Container, Col } from 'react-bootstrap'
 
 import { CanvasNode } from '../core/CanvasNode'
 import { InputFormat } from '../core/NodeRegistry'
@@ -122,12 +122,12 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
                 🗑️
               </span>
             </div>
-            <Row className='header'>
+            <div className='header'>
               <Col md={12} className='node-drag'>
                 <span>{this.props.title}</span>
                 <hr />
               </Col>
-            </Row>
+            </div>
             {this.props.children}
           </Container>
         </div>

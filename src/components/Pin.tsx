@@ -1,5 +1,4 @@
 import React from 'react'
-import { Col, Row } from 'react-bootstrap'
 import { useDrop, useDrag, DragObjectWithType } from 'react-dnd'
 import { ItemTypes } from '../core/Constants'
 import { buildPinId } from '../core/utils'
@@ -66,18 +65,12 @@ export function OutputPin({
   const hideName = !visualName || visualName === ''
 
   return (
-    <Row>
-      {hideName ? null : (
-        <Col md={9} className='identifier output'>
-          {name}
-        </Col>
-      )}
-      <Col md={hideName ? 12 : 3} className='pin-container output'>
-        <div id={pinId} ref={dragRef} className={activeClasses}>
-          <StopMouseDownPropagation />
-        </div>
-      </Col>
-    </Row>
+    <div className="output-pin">
+      {hideName?null:<span>{name}</span>}
+      <div id={pinId} ref={dragRef} className={activeClasses} >
+        <StopMouseDownPropagation />
+      </div>
+    </div>
   )
 }
 
@@ -114,14 +107,14 @@ export function InputPin({
     })
   })
 
-  const classes = `pin  adasd ${error ? 'error' : ''}`
+  const classes = `pin ${error ? 'error' : ''}`
 
   const displayName = visualName === undefined ? name : visualName
 
   return (
-    <Row className='input-pin'>
+    <div className='input-pin'>
       <div id={pinId} ref={ref} className={classes} />
       <span>{displayName}</span>
-    </Row>
+    </div>
   )
 }
