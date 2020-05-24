@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { Form } from 'react-bootstrap';
 
 import NumberInputNode from '../NumberInputNode';
-import { AutoBaseNode, NodeResolver } from 'compute-nodes';
+import { BaseNode, NodeResolver } from 'compute-nodes';
 
 
 interface OwnProps extends NumberInputNode {
@@ -40,10 +40,14 @@ export class NumberInputGraphNode extends Component<Props> {
     }
 
     render() {
-        return (<AutoBaseNode title="Number Input" mdOut={3} {...this.props}
+        return (<BaseNode title="Number Input" {...this.props}
             output={NumberInputNode.OutputFormat} >
             <Form.Group>
                 <Form.Control size="lg" type="text" onBlur={this.onBlur}
+                    style={{
+                        padding: "5px",
+                        height: "2em",
+                    }}
                     placeholder={"" + this.props.data.value} ref={this.inputRef}
                     value={this.props.data.value} onChange={this.onChange}
                     onKeyPress={(event: any) => {
@@ -52,6 +56,6 @@ export class NumberInputGraphNode extends Component<Props> {
                         }
                     }} />
             </Form.Group>
-        </AutoBaseNode>);
+        </BaseNode>);
     }
 }

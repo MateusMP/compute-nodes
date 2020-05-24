@@ -39,7 +39,7 @@ export function snapped(x: number, size = 16) {
 export function shouldAllowInputEvent(el: any) {
   let i = 0
   while (i < 20 && el) {
-    if (el instanceof HTMLInputElement) {
+    if (el instanceof HTMLInputElement || el instanceof HTMLButtonElement) {
       return false
     }
     if (el.classList && el.classList.contains('node-noglobals')) {

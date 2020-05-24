@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react'
-import { Container, Col } from 'react-bootstrap'
 
 import { CanvasNode } from '../core/CanvasNode'
 import { InputFormat } from '../core/NodeRegistry'
@@ -8,6 +7,7 @@ import { snapped, shouldAllowInputEvent } from '../core/utils'
 
 import { drag as d3drag } from 'd3-drag'
 import { select as d3select, event as d3event } from 'd3-selection'
+import { InputPin, OutputPin } from './Pin'
 
 //import * as d3 from 'd3'
 
@@ -34,14 +34,20 @@ export interface BaseNodeProps extends CanvasNode {
  */
 export class BaseNode extends React.Component<BaseNodeProps, any> {
   dragArea: any
+  resize: any
   inputPinChangeHandler: any
   coords: any;
+  onResize?: { (width : number) : void };
+
+  static readonly MIN_WIDTH = 160;
+  static readonly MIN_HEIGHT = 96;
 
   constructor(props: BaseNodeProps) {
     super(props)
     this.state = {}
 
     this.dragArea = React.createRef()
+    this.resize = React.createRef()
     this.inputPinChangeHandler = {}
 
     this.destroyNode = this.destroyNode.bind(this);
@@ -57,8 +63,15 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
   }
 
   componentDidUpdate() {
-    const { x, y } = this.props
-    d3select(this.dragArea.current).data([{ x, y }])
+    const { x, y, width, height } = this.props
+    d3select(this.dragArea.current).data([{
+      x, y
+    }])
+    d3select(this.resize.current).data([{
+      x, y, width, height,
+      minW: this.props.minWidth || BaseNode.MIN_WIDTH,
+      minH: this.props.minHeight || BaseNode.MIN_HEIGHT
+    }])
   }
 
   registerForDragging(element: SVGForeignObjectElement) {
@@ -92,23 +105,98 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
       .on('end', dragended)
 
     const { x, y } = this.props
-    d3select(element).data([{ x, y }]).call(dragCall)
+    d3select(element).data([{
+      x, y,
+    }]).call(dragCall)
+  }
+
+  registerForResize(element: any) {
+    const that = this;
+
+    function resizeStarted(d: any) {
+      d.rx = d3event.x
+      d.ry = d3event.y
+      d.startW = d.width
+      d.startH = d.height
+    }
+
+    function resized(d: any) {
+      d.width = snapped(Math.max(d.startW + d3event.x - d.rx, d.minW))
+      d.height = snapped(Math.max(d.startH + d3event.y - d.ry, d.minH))
+      
+      d3select(that.dragArea.current.parentNode).attr('width', d.width).attr('height', d.height)
+      that.props.resolver!.updateNode(that.props.id, { width: d.width, height: d.height }, { nohistory: true })
+    }
+
+    function resizeEnded(this: any, d: any) {
+      d.width = snapped(Math.max(d.startW + d3event.x - d.rx, d.minW))
+      d.height = snapped(Math.max(d.startH + d3event.y - d.ry, d.minH))
+
+      d3select(that.dragArea.current.parentNode).attr('width', d.width).attr('height', d.height)
+      if (that.props.width !== d.width || that.props.height !== d.height) {
+        that.props.resolver!.updateNode(that.props.id, { width: d.width, height: d.height })
+      }
+    }
+
+    const dragResize = d3drag<SVGForeignObjectElement, any>()
+      .filter(() => shouldAllowInputEvent(d3event.target))
+      .on('start', resizeStarted)
+      .on('drag', resized)
+      .on('end', resizeEnded)
+
+    const { x, y, width, height } = this.props
+    d3select(element).data([{
+      x, y, width, height,
+      minW: this.props.minWidth || BaseNode.MIN_WIDTH,
+      minH: this.props.minHeight || BaseNode.MIN_HEIGHT
+    }]).call(dragResize)
   }
 
   componentDidMount() {
     this.registerForDragging(this.dragArea.current)
+    this.registerForResize(this.resize.current)
   }
 
   render() {
     const { x, y } = this.props
     const hasError = this.props.error
 
+    const inputPins = this.props.input
+      ? Object.entries(this.props.input).map(([key, value]) => {
+        return (
+          <InputPin
+            error={false}
+            dataType={value.type}
+            resolver={this.props.resolver!}
+            key={key}
+            nodeId={this.props.id}
+            name={key}
+            visualName={value.visualName}
+          />
+        )
+      })
+      : null
+
+    const outputPins = this.props.output
+      ? Object.entries(this.props.output).map(([key, value]) => {
+        return (
+          <OutputPin
+            dataType={value.type}
+            key={key}
+            nodeId={this.props.id}
+            name={key}
+            visualName={value.visualName}
+          />
+        )
+      })
+      : null
+
     return (
       <foreignObject
         x={x}
         y={y}
-        width={this.props.minWidth || 160}
-        height={this.props.minHeight || 160}
+        width={Math.max(this.props.minWidth || BaseNode.MIN_WIDTH, this.props.width)}
+        height={Math.max(this.props.minHeight || BaseNode.MIN_HEIGHT, this.props.height)}
         className='embedded-node'
       >
         <div
@@ -116,20 +204,33 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
           title={this.props.title}
           className={`node ${hasError ? 'error' : ''}`}
         >
-          <Container className='main-node node-drag'>
+          <div className='main-node node-drag'>
             <div className='node-remove'>
               <span role='img' aria-label='delete' onClick={this.destroyNode}>
                 🗑️
               </span>
             </div>
             <div className='header'>
-              <Col md={12} className='node-drag'>
+              <div className='node-drag'>
                 <span>{this.props.title}</span>
                 <hr />
-              </Col>
+              </div>
             </div>
-            {this.props.children}
-          </Container>
+
+            <div className="node-body">
+              {this.props.input ? (
+                <div className='ignore-mouse inputs'>
+                  {inputPins}
+                </div>
+              ) : null}
+
+              <div className="contents" style={{ maxHeight: this.props.height - 20 - 45 }}>{this.props.children}</div>
+
+              {this.props.output ? <div className="outputs">{outputPins}</div> : null}
+            </div>
+
+          </div>
+          <div className="resize" ref={this.resize}>ᒧ</div>
         </div>
       </foreignObject>
     )

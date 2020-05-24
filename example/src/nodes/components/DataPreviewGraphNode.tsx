@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { AutoBaseNode, CanvasNode } from 'compute-nodes';
+import { CanvasNode, BaseNode } from 'compute-nodes';
 
 import { Row, Col } from 'react-bootstrap';
 import { DataPreviewNode } from '../DataPreviewNode';
@@ -61,15 +61,15 @@ export class DataPreviewGraphNode extends Component<OwnProps> {
 
 
     render() {
-        return (<AutoBaseNode {...this.props}
-            title="Data Preview" minWidth={250} minHeight={250}
+        return (<BaseNode {...this.props}
+            title="Data Preview"
             input={DataPreviewNode.InputFormat}>
             <div className="gn-data-preview container node-noglobals"
                 style={{
-                    maxHeight: "100px"
+                    maxHeight: this.props.height-60 + "px"
                 }}>
                 {this.getView(this.props.resolvedData.a)}
             </div>
-        </AutoBaseNode>);
+        </BaseNode>);
     }
 }

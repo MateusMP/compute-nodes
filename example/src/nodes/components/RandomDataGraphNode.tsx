@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { Form, Button } from 'react-bootstrap';
-import { AutoBaseNode, NodeResolver, CanvasNode } from 'compute-nodes';
+import { BaseNode, NodeResolver, CanvasNode } from 'compute-nodes';
 
 
 interface OwnProps extends CanvasNode {
@@ -47,11 +47,11 @@ export class RandomDataGraphNode extends Component<OwnProps> {
     }
 
     render() {
-        return (<AutoBaseNode title="Random Data" mdOut={3} {...this.props}
+        return (<BaseNode title="Random Data" {...this.props}
             output={RandomDataGraphNode.OutputFormat} >
             <Form.Group>
                 <Button onClick={this.onChange}>Generate</Button>
             </Form.Group>
-        </AutoBaseNode>);
+        </BaseNode>);
     }
 }

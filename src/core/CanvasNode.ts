@@ -26,6 +26,8 @@ export class CanvasNode {
   id: string
   x: number
   y: number
+  width: number
+  height: number
 
   /**
    * Incomming connections
@@ -42,6 +44,8 @@ export class CanvasNode {
     this.type = d.type
     this.x = d.x
     this.y = d.y
+    this.width = d.width
+    this.height = d.height
     this.inputPins = d.inputPins || {}
   }
 }

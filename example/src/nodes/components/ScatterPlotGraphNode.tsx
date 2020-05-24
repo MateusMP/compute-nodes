@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { AutoBaseNode } from 'compute-nodes';
+import { BaseNode } from 'compute-nodes';
 import ScatterPlotNode from '../ScatterPlotNode';
 
 import * as d3 from 'd3';
@@ -39,7 +39,7 @@ export class ScatterPlotGraphNode extends Component<Props> {
             return { x: value, y: y[i] }
         });
 
-        const area = { width: 100, height: 70 };//svg.getBoundingClientRect();
+        const area = { width: 100, height: 100 };//svg.getBoundingClientRect();
 
         const elemSize = 5;
         const scaleX = d3.scaleLinear().range([0 + elemSize, area.width - elemSize]).domain(d3.extent(useData, (d: DataEntry) => d.x) as [number, number]);
@@ -51,13 +51,13 @@ export class ScatterPlotGraphNode extends Component<Props> {
     }
 
     render() {
-        return (<AutoBaseNode title="Scatter Plot" minWidth={480} minHeight={480} {...this.props}
+        return (<BaseNode title="Scatter Plot" {...this.props}
             input={ScatterPlotNode.InputFormat} output={ScatterPlotNode.OutputFormat}>
             <div>
-                <svg width="95%" height="100%" viewBox="0,0,100, 70" className="node-noglobals">
+                <svg width={this.props.width-65} height={this.props.height-70} viewBox="0,0, 100,100" className="node-noglobals">
                     {this.buildgraph(this.props.resolvedData.x, this.props.resolvedData.y)}
                 </svg>
             </div>
-        </AutoBaseNode>);
+        </BaseNode>);
     }
 }

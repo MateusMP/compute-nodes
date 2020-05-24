@@ -11,6 +11,11 @@ export interface InputFormat {
   [key: string]: AInputFormat
 }
 
+export interface NodeDimension {
+  width?: number
+  height?: number
+}
+
 /**
  * Basic fields of a node definition
  */
@@ -28,12 +33,17 @@ export interface NodeTypeDefinition {
   /**
    * Node input information
    */
-  InputFormat: InputFormat | undefined
+  InputFormat?: InputFormat
 
   /**
    * Node output information
    */
-  OutputFormat: InputFormat | undefined
+  OutputFormat?: InputFormat
+
+  /**
+   * Minimun node dimensions
+   */
+  MinDimensions?: NodeDimension
 
   /**
    * A method to construct the object
@@ -67,10 +77,13 @@ export class NodeRegistry<ExtraDefProps = {}> {
    * @param args properties passed to the constructed object
    */
   instantiateNewNode(type: string, args: any) {
+    const info = this.nodeTypes[type]
     if (!args.id) {
       args = { ...args, id: this.generateId() }
     }
-    const info = this.nodeTypes[type]
+
+    args.width = Math.max(args.width || 160, info.MinDimensions?.width || 160)
+    args.height = Math.max(args.height || 112, info.MinDimensions?.height || 112)
     const obj = info.Construct(args)
     obj.type = info.Type
     return obj

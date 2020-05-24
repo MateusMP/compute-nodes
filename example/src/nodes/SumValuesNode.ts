@@ -9,6 +9,9 @@ export default class SumValuesNode extends CanvasNode {
     static Type = "SumNumbers";
     static Name = "Sum"
 
+    static MinDimensions = {
+        height: 16 * 8
+    }
     static InputFormat = {
         a: {
             type: 'any',

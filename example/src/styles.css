@@ -1,7 +1,7 @@
 
 .node {
-    min-width: 150px;
-    max-width: 500px;
+    height: 100%;
+    width: 100%;
     word-wrap: anywhere;
     background-color: #F9F9F9;
     border: solid #DDDDDD 1px;
@@ -83,10 +83,20 @@ svg {
 
 .node .node-body {
     display: flex;
+    max-height: 100%;
 }
 
 .node .header {
     text-align: center;
+}
+
+.node .resize {
+    position: absolute;
+    right: 6px;
+    bottom: 8px;
+    height: 20px;
+    cursor: se-resize;
+    opacity: 0.2;
 }
 
 .node .outputs {
@@ -108,6 +118,7 @@ svg {
     flex-grow: 1;
     max-width: 100%;
     padding-right: 10px;
+    max-height: 90%;
 }
 
 .node .input-pin {
