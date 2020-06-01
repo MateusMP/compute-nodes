@@ -1,5 +1,5 @@
 import { CanvasNode, Connection, connToPinId } from './CanvasNode'
-import { NodeRegistry, InputFormat } from './NodeRegistry'
+import { NodeRegistry } from './NodeRegistry'
 import { destructPinId, buildPinId } from './utils'
 
 export interface ConnectionMap {
@@ -25,6 +25,7 @@ export interface ResolverEvent {
   connections?: ConnectionMap
   node?: CanvasNode
   connection?: Connection
+  invalidateOutput?: boolean
   [key: string]: any
 }
 
@@ -52,14 +53,11 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     return this.linksByTo
   }
 
-  abstract resolvePinData(pinId: string): any
-
-  abstract resolveNodeInputs(
-    node: CanvasNode,
-    inputFormat: InputFormat | undefined
-  ): any
-
-  abstract resolveNodeOutputs(node: CanvasNode, inputData: any): any
+  /**
+   * Called when an update event sets the invalidateOutput flag
+   * @param nodeId the node that had the input validated
+   */
+  abstract invalidateNodeOutput(nodeId: string): void
 
   /**
    * Register event listener
@@ -157,13 +155,35 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
   }
 
   /**
+   * Iterates over all output connections for a given nodeId
+   * @param nodeId the node to go over outgoing connections
+   * @param callback the function to call for each connection
+   */
+  forNodeOutputConnections(
+    nodeId: string,
+    callback: (nodeId: string, pinName: string, originPin: string) => void
+  ) {
+    const type = this.registry.getNodeTypeInfo(this.nodes[nodeId].type)
+    if (type.OutputFormat) {
+      Object.keys(type.OutputFormat).forEach((key) => {
+        this.linksByFrom[buildPinId(nodeId, key)]?.forEach((c: Connection) => {
+          callback(c.to.node, c.to.pin, c.from.pin)
+        })
+      })
+    }
+  }
+
+  /**
    * Updates a node, triggers {@link UpdateNodeEvent}
    * @param id the node id that is changing
    * @param changes object with patch information
    */
-  updateNode(id: string, changes: any, eventInfo: object = {}) {
+  updateNode(id: string, changes: any, eventInfo?: any | ResolverEvent) {
     const updatedNode: CanvasNode = { ...this.nodes[id], ...changes }
     this.nodes = { ...this.nodes, [id]: updatedNode }
+    if (eventInfo?.invalidateOutput) {
+      this.invalidateNodeOutput(id)
+    }
     this.issueEvent({
       type: UpdateNodeEvent,
       nodes: this.nodes,
@@ -251,8 +271,15 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
   private internalDestroyConnection(pinId: string) {
     if (pinId in this.linksByTo) {
       const prev = this.linksByTo[pinId]
-      delete this.linksByFrom[connToPinId(prev.from)]
+      const fromPinId = connToPinId(prev.from)
+      const linksFrom = this.linksByFrom[fromPinId]
+      this.linksByFrom[fromPinId] = linksFrom.filter(
+        (link) => connToPinId(link.to) !== pinId
+      )
       delete this.linksByTo[connToPinId(prev.to)]
+      this.nodes[prev.to.node].inputPins = {
+        ...this.nodes[prev.to.node].inputPins
+      }
       delete this.nodes[prev.to.node].inputPins[prev.to.pin]
     } else if (pinId in this.linksByFrom) {
       const { nodeId, pin } = destructPinId(pinId)
@@ -272,19 +299,11 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
 
   /**
    * Resolves a specific node.
-   * Will call {@link NodeResolver#resolveNodeInputs} followed by {@link NodeResolver#resolveNodeOutputs}
    * @param node the node to be resolved
    * @returns an object containing relevant information to display the node
    *          calculated by user provided function. Must be handled accordingly.
    */
-  resolveNode(node: CanvasNode) {
-    const typeDef = this.registry.getNodeTypeInfo(node.type)
-
-    const inputData = this.resolveNodeInputs(node, typeDef.InputFormat)
-    const outputs = this.resolveNodeOutputs(node, inputData)
-
-    return outputs
-  }
+  abstract resolveNode(node: CanvasNode): any
 
   //
 
@@ -304,17 +323,15 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       const node = nodes[nodeId]
       if (node.inputPins) {
         Object.keys(node.inputPins).forEach((toPinName) => {
-          if (!(toPinName in this.linksByTo)) {
-            const toPinId = buildPinId(nodeId, toPinName)
-            const fromPinId = node.inputPins[toPinName]
-            const conn = this.buildNewConnection(fromPinId, nodeId, toPinName)
-            this.linksByTo[toPinId] = conn
-            const fromList = this.linksByFrom[fromPinId]
-            if (fromList) {
-              this.linksByFrom[fromPinId].push(conn)
-            } else {
-              this.linksByFrom[fromPinId] = [conn]
-            }
+          const toPinId = buildPinId(nodeId, toPinName)
+          const fromPinId = node.inputPins[toPinName]
+          const conn = this.buildNewConnection(fromPinId, nodeId, toPinName)
+          this.linksByTo[toPinId] = conn
+          const fromList = this.linksByFrom[fromPinId]
+          if (fromList) {
+            this.linksByFrom[fromPinId].push(conn)
+          } else {
+            this.linksByFrom[fromPinId] = [conn]
           }
         })
       }

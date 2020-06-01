@@ -83,7 +83,10 @@ export class NodeRegistry<ExtraDefProps = {}> {
     }
 
     args.width = Math.max(args.width || 160, info.MinDimensions?.width || 160)
-    args.height = Math.max(args.height || 112, info.MinDimensions?.height || 112)
+    args.height = Math.max(
+      args.height || 112,
+      info.MinDimensions?.height || 112
+    )
     const obj = info.Construct(args)
     obj.type = info.Type
     return obj

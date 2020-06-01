@@ -5,19 +5,11 @@ import {
   DeleteNodeEvent
 } from '../../core/NodeResolver'
 import { CanvasNode } from '../../core/CanvasNode'
-import { InputFormat, NodeRegistry } from '../../core/NodeRegistry'
+import { NodeRegistry } from '../../core/NodeRegistry'
 import { buildPinId } from '../../core/utils'
 
 class TestNodeResolver extends NodeResolver {
-  resolvePinData(pinId: string) {
-    throw new Error('Method not implemented.')
-  }
-
-  resolveNodeInputs(node: CanvasNode, inputFormat: InputFormat | undefined) {
-    throw new Error('Method not implemented.')
-  }
-
-  resolveNodeOutputs(node: CanvasNode, inputData: any) {
+  resolveNode(node: CanvasNode) {
     throw new Error('Method not implemented.')
   }
 }
@@ -267,4 +259,76 @@ it('should issue event with new map with updated instance on node update', () =>
     onUpdated.mock.calls[0][0].node
   )
   expect(onUpdated.mock.calls[1][0].node!.x).toBe(2)
+})
+
+it('should call invalidate node output if update call receives invalidateOutput=true', () => {
+  const n1 = resolver!.createNode('In1Out1', {})
+  const invalidateOutput = jest.fn((nodeId: string) => {})
+  resolver!.invalidateNodeOutput = invalidateOutput
+  resolver!.updateNode(n1.id, { x: 1 }, { invalidateOutput: true })
+  expect(invalidateOutput.mock.calls[0][0]).toEqual(n1.id)
+})
+
+it('should not call invalidate node output if update call receives invalidateOutput=false', () => {
+  const n1 = resolver!.createNode('In1Out1', {})
+  const invalidateOutput = jest.fn((nodeId: string) => {})
+  resolver!.invalidateNodeOutput = invalidateOutput
+  resolver!.updateNode(n1.id, { x: 1 }, { invalidateOutput: false })
+  expect(invalidateOutput.mock.calls.length).toEqual(0)
+})
+
+function setupTestGraph() {
+  resolver!.restoreNodes({
+    a: {
+      id: 'a',
+      type: 'In3Out3',
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      inputPins: {}
+    },
+    b1: {
+      id: 'b1',
+      type: 'In3Out3',
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      inputPins: { in1: 'a-out1' }
+    },
+    b2: {
+      id: 'b2',
+      type: 'In3Out3',
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      inputPins: { in2: 'a-out2' }
+    },
+    b3: {
+      id: 'b3',
+      type: 'In3Out3',
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+      inputPins: { in3: 'a-out3' }
+    }
+  })
+}
+
+it('should iterate over each node output connection', () => {
+  setupTestGraph()
+  const callback = jest.fn(
+    (nodeId: string, pin: string, pinOrigin: string) => {}
+  )
+  resolver!.forNodeOutputConnections('a', callback)
+  expect(callback.mock.calls.length).toEqual(3)
+  expect(callback.mock.calls[0][1]).toEqual('in1')
+  expect(callback.mock.calls[1][1]).toEqual('in2')
+  expect(callback.mock.calls[2][1]).toEqual('in3')
+  expect(callback.mock.calls[0][2]).toEqual('out1')
+  expect(callback.mock.calls[1][2]).toEqual('out2')
+  expect(callback.mock.calls[2][2]).toEqual('out3')
 })

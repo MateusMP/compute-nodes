@@ -32,11 +32,15 @@ export class NumberInputGraphNode extends Component<Props> {
     }
 
     onBlur(event: any) {
-        this.props.resolver.updateNode(this.props.id, { data: { ...this.props.data, value: this.props.data.value } });
+        this.props.resolver.updateNode(this.props.id,
+            { data: { ...this.props.data, value: this.props.data.value } },
+            { invalidateOutput: true });
     }
 
     onChange(ev: any) {
-        this.props.resolver.updateNode(this.props.id, { data: { ...this.props.data, value: ev.target.value } })
+        this.props.resolver.updateNode(this.props.id,
+            { data: { ...this.props.data, value: ev.target.value } },
+            { invalidateOutput: true })
     }
 
     render() {

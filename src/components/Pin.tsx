@@ -65,9 +65,9 @@ export function OutputPin({
   const hideName = !visualName || visualName === ''
 
   return (
-    <div className="output-pin">
-      {hideName?null:<span>{name}</span>}
-      <div id={pinId} ref={dragRef} className={activeClasses} >
+    <div className='output-pin'>
+      {hideName ? null : <span>{name}</span>}
+      <div id={pinId} ref={dragRef} className={activeClasses}>
         <StopMouseDownPropagation />
       </div>
     </div>

@@ -93,11 +93,11 @@ export class Canvas extends React.Component<OwnProps, State> {
 
     this.state = {
       nodes: props.resolver.getNodes(),
-      connections: props.resolver.getConnections(),
+      connections: props.resolver.getConnections()
     }
 
-    this.undo = [{ data: this.state.nodes, description: "Start" }]
-    this.undoIndex = 0;
+    this.undo = [{ data: this.state.nodes, description: 'Start' }]
+    this.undoIndex = 0
     this.variableDropped = this.variableDropped.bind(this)
     this.mainGroup = React.createRef<SVGGElement>()
     this.dragG = React.createRef<SVGGElement>()
@@ -108,12 +108,18 @@ export class Canvas extends React.Component<OwnProps, State> {
 
   variableDropped(e: CanvasDropItem, offset: XYCoord) {
     const p = this.svgPoint(offset.x, offset.y)
-    this.props.resolver.createNode(e.nodeType, { x: snapped(p[0]), y: snapped(p[1]), ...e })
+    this.props.resolver.createNode(e.nodeType, {
+      x: snapped(p[0]),
+      y: snapped(p[1]),
+      ...e
+    })
   }
 
   svgPoint(x: number, y: number) {
     if (this.mainGroup.current !== null) {
-      const svg: SVGSVGElement = this.mainGroup.current.closest("svg") as SVGSVGElement
+      const svg: SVGSVGElement = this.mainGroup.current.closest(
+        'svg'
+      ) as SVGSVGElement
       return screenToSvg(svg, this.mainGroup.current, x, y)
     }
     throw new Error('Invalid G group')
@@ -173,24 +179,26 @@ export class Canvas extends React.Component<OwnProps, State> {
 
     this.setState({
       nodes: event.nodes ? event.nodes : this.state.nodes,
-      connections: event.connections ? event.connections : this.state.connections
+      connections: event.connections
+        ? event.connections
+        : this.state.connections
     })
   }
 
   saveNodeHistory(nodes: any) {
     // Clear future history
-    this.undo = this.undo.slice(0, this.undoIndex + 1);
+    this.undo = this.undo.slice(0, this.undoIndex + 1)
 
     // Save new history
-    const undodata = { data: nodes, description: "state?" }
+    const undodata = { data: nodes, description: 'state?' }
     this.undo.push(undodata)
-    this.undoIndex++;
+    this.undoIndex++
   }
 
   redoOnce() {
     if (this.undoIndex + 1 < this.undo.length) {
-      this.undoIndex++;
-      this.useFromHistory();
+      this.undoIndex++
+      this.useFromHistory()
     }
   }
 
@@ -199,14 +207,14 @@ export class Canvas extends React.Component<OwnProps, State> {
     this.props.resolver.restoreNodes(nodes.data)
     this.setState({
       nodes: this.props.resolver.getNodes(),
-      connections: this.props.resolver.getConnections(),
+      connections: this.props.resolver.getConnections()
     })
   }
 
   undoOnce() {
     if (this.undoIndex !== 0) {
-      this.undoIndex--;
-      this.useFromHistory();
+      this.undoIndex--
+      this.useFromHistory()
     }
   }
 
@@ -227,16 +235,17 @@ export class Canvas extends React.Component<OwnProps, State> {
       const that = this
       const g = d3.select(this.mainGroup.current)
       d3.select(this.dragG.current).call(
-        d3.zoom<SVGGElement, any>()
-        .filter(() => shouldAllowInputEvent(d3.event.target))
-        .on('zoom', function () {
-          that.transform = {
-            x: d3.event.transform.x,
-            y: d3.event.transform.y,
-            zoom: d3.event.transform.k
-          }
-          g.attr('transform', d3.event.transform)
-        })
+        d3
+          .zoom<SVGGElement, any>()
+          .filter(() => shouldAllowInputEvent(d3.event.target))
+          .on('zoom', function () {
+            that.transform = {
+              x: d3.event.transform.x,
+              y: d3.event.transform.y,
+              zoom: d3.event.transform.k
+            }
+            g.attr('transform', d3.event.transform)
+          })
       )
 
       // Force update because the links can only be rendered
@@ -272,8 +281,8 @@ export class Canvas extends React.Component<OwnProps, State> {
             style={{ visibility: 'hidden', pointerEvents: 'all' }}
           />
           <g ref={this.mainGroup} transform='translate(0,0) scale(1)'>
-              {this.shouldRenderConnections ? this.renderConnections() : null}
-              <g>{this.renderNodes()}</g>
+            {this.shouldRenderConnections ? this.renderConnections() : null}
+            <g>{this.renderNodes()}</g>
           </g>
         </g>
       </SvgCanvas>

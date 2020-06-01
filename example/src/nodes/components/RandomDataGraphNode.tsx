@@ -35,7 +35,7 @@ export class RandomDataGraphNode extends Component<OwnProps> {
 
     onChange(ev: any) {
         let randData = this.generateRandomData();
-        this.props.resolver.updateNode(this.props.id, { data: randData })
+        this.props.resolver.updateNode(this.props.id, { data: randData }, { invalidateOutput: true })
     }
 
     generateRandomData() {

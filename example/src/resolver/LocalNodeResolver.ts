@@ -13,10 +13,40 @@ export class LocalNodeRegistry extends NodeRegistry<LocalNodeDefinition> {
 
 export class LocalNodeResolver extends NodeResolver<LocalNodeRegistry> {
     pinData: any;
+    resolvedNodes: any;
 
     constructor(registry: LocalNodeRegistry, nodes?: any) {
         super(registry, nodes);
         this.pinData = {};
+        this.resolvedNodes = {};
+    }
+
+    /**
+     * Resolves a specific node.
+     * @param node the node to be resolved
+     * @returns an object containing relevant information to display the node
+     *          calculated by user provided function. Must be handled accordingly.
+     */
+    resolveNode(node: CanvasNode) {
+        if (node.id in this.resolvedNodes) {
+            return this.resolvedNodes[node.id]
+        } else {
+            const typeDef = this.registry.getNodeTypeInfo(node.type)
+            const inputData = this.resolveNodeInputs(node, typeDef.InputFormat)
+            const outputs = this.resolveNodeOutputs(node, inputData)
+            this.resolvedNodes[node.id] = outputs
+            return outputs
+        }
+    }
+
+    invalidateNodeOutput(nodeId: string): void {
+        if (nodeId in this.resolvedNodes) {
+            delete this.resolvedNodes[nodeId]
+            this.forNodeOutputConnections(nodeId, (subNodeId: string, pinName: string, fromPin: string) => {
+                this.invalidateNodeOutput(subNodeId);
+                delete this.pinData[buildPinId(nodeId, fromPin)]
+            })
+        }
     }
 
     resolvePinData(pinId: string) {
@@ -35,7 +65,7 @@ export class LocalNodeResolver extends NodeResolver<LocalNodeRegistry> {
         this.pinData[pinId] = data;
     }
 
-    resolveNodeInputs(node: CanvasNode, inputFormat: InputFormat) {
+    resolveNodeInputs(node: CanvasNode, inputFormat?: InputFormat) {
         if (!inputFormat) {
             return undefined;
         }
@@ -51,11 +81,6 @@ export class LocalNodeResolver extends NodeResolver<LocalNodeRegistry> {
 
     resolveNodeOutputs(node: CanvasNode, inputData: any) {
         const data = this.registry.localResolve(node, inputData);
-        if (data) {
-            Object.keys(data).forEach(key => {
-                this.setPinData(buildPinId(node.id, key), data[key]);
-            });
-        }
         return data;
     }
 }
