@@ -332,3 +332,29 @@ it('should iterate over each node output connection', () => {
   expect(callback.mock.calls[1][2]).toEqual('out2')
   expect(callback.mock.calls[2][2]).toEqual('out3')
 })
+
+it('should override link when creating at same target input pin', () => {
+  setupTestGraph()
+  expect(resolver!.linksByFrom[buildPinId('a', 'out1')].length).toEqual(1)
+  expect(resolver!.linksByFrom[buildPinId('a', 'out2')].length).toEqual(1)
+  expect(resolver!.linksByFrom[buildPinId('a', 'out3')].length).toEqual(1)
+
+  const conn = resolver!.createPinConnection(buildPinId('a', 'out2'), buildPinId('b1', 'in1'))
+  expect(conn).toBeTruthy();
+  expect(resolver!.linksByFrom[buildPinId('a', 'out1')].length).toEqual(0)
+  expect(resolver!.linksByFrom[buildPinId('a', 'out2')].length).toEqual(2)
+  expect(resolver!.linksByFrom[buildPinId('a', 'out3')].length).toEqual(1)
+})
+
+it('should setup new nodes and links when overriding a link to existing target input pin', () => {
+  setupTestGraph()
+  const prevNodes = resolver!.getNodes()
+  const conn = resolver!.createPinConnection(buildPinId('a', 'out2'), buildPinId('b1', 'in1'))
+  expect(conn).toBeTruthy();
+  expect(resolver!.getNodes()['a']).toBe(prevNodes['a'])
+  expect(resolver!.getNodes()['b1']).not.toBe(prevNodes['b1'])
+  expect(resolver!.getNodes()['b1'].inputPins).not.toBe(prevNodes['b1'].inputPins)
+  expect(resolver!.getNodes()['b1'].inputPins['in1']).toBe('a-out2')
+  expect(resolver!.getNodes()['b2']).toBe(prevNodes['b2'])
+  expect(resolver!.getNodes()['b3']).toBe(prevNodes['b3'])
+})

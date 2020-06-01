@@ -12,12 +12,15 @@ export default class SumValuesNode extends CanvasNode {
     static MinDimensions = {
         height: 16 * 8
     }
+
+    static readonly inA: string = 'a';
+    static readonly inB: string = 'b';
     static InputFormat = {
-        a: {
+        [SumValuesNode.inA]: {
             type: 'any',
             visualName: "A",
         },
-        b: {
+        [SumValuesNode.inB]: {
             type: 'any',
             visualName: "B",
         }

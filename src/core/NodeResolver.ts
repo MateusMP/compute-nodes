@@ -48,7 +48,12 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     this.setupNodes(this.nodes)
   }
 
-  restoreNodes(nodes: NodeMap) {
+  /**
+   * Recreates the entire node graph using the provided node map.
+   * @param nodes the node map to use
+   * @returns a map with all unique connections in the graph
+   */
+  restoreNodes(nodes: NodeMap): ConnectionMap {
     this.setupNodes(nodes)
     return this.linksByTo
   }
@@ -64,7 +69,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
    * @param event one of {@link NewNodeEvent}, {@link UpdateNodeEvent}, {@link NewConnectionEvent}
    * @param handler function to be called
    */
-  on(event: string, handler: Function) {
+  on(event: string, handler: Function): void {
     if (!this.handlers[event]) {
       this.handlers[event] = []
     }
@@ -76,7 +81,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
    * @param event one of {@link NewNodeEvent}, {@link UpdateNodeEvent}, {@link NewConnectionEvent}
    * @param handler the function
    */
-  unbind(event: string, handler: Function) {
+  unbind(event: string, handler: Function): void {
     if (!this.handlers[event]) {
       this.handlers[event] = []
     }
@@ -90,6 +95,9 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     return this.nodes
   }
 
+  /**
+   * Get unique connections (by input pinId)
+   */
   getConnections(): ConnectionMap {
     return this.linksByTo
   }
@@ -98,7 +106,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
    * Render a node, also embeds some properties such as a reference to the resolver.
    * @param node the node to be rendered
    */
-  render(node: CanvasNode) {
+  render(node: CanvasNode): any {
     return this.registry.renderNode({
       ...node,
       resolver: this,
@@ -120,9 +128,9 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
 
   /**
    * @param nodeId
-   * @returns true if the node is destroyed
+   * @returns true if the node is destroyed, false otherwise
    */
-  destroyNode(nodeId: string) {
+  destroyNode(nodeId: string): boolean {
     const node = this.nodes[nodeId]
     if (node) {
       // Delete incoming connections
@@ -193,6 +201,10 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     })
   }
 
+  /**
+   * Check if given input pin exists in node graph
+   * @param pinId the pin id to check
+   */
   isValidInputPin(pinId: string): boolean {
     const { nodeId, pin } = destructPinId(pinId)
     if (nodeId in this.nodes) {
@@ -205,6 +217,10 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     return false
   }
 
+  /**
+   * Check if given output pin id exists in node graph
+   * @param pinId the pin id to check
+   */
   isValidOutputPin(pinId: string): boolean {
     const { nodeId, pin } = destructPinId(pinId)
     if (nodeId in this.nodes) {
@@ -221,8 +237,9 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
    * Creates a connection between two pins
    * @param from providing pin
    * @param to receiving pin
+   * @returns the new connection or false
    */
-  createPinConnection(from: string, to: string) {
+  createPinConnection(from: string, to: string): Connection | false {
     if (this.createsCycle(from, to)) {
       return false
     }
