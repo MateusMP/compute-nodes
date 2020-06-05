@@ -258,7 +258,7 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
             </div>
             <div className='header'>
               <div className='node-drag'>
-                <span>{this.props.title + '/' + this.props.id}</span>
+                <span>{this.props.title}</span>
                 <hr />
               </div>
             </div>

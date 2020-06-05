@@ -1,1 +1,189 @@
-/* add css module styles here (optional) */
+/* Basic Node Styling */
+
+.node {
+    height: 100%;
+    width: 100%;
+    word-wrap: anywhere;
+    background-color: #F9F9F9;
+    border: solid #DDDDDD 1px;
+    border-radius: 20px;
+}
+
+.node:hover {
+    border: solid #AAA 1px;
+}
+
+@keyframes glowing-red {
+    0% {
+        box-shadow: 0 0 -10px rgb(255, 145, 145);
+    }
+    50% {
+        box-shadow: 0 0 20px rgb(255, 145, 145);
+    }
+    100% {
+        box-shadow: 0 0 -10px rgb(255, 145, 145);
+    }
+}
+
+@keyframes shake {
+    0% {
+        transform: rotate(-5deg);
+    }
+    100% {
+        transform: rotate(5deg);
+    }
+}
+
+.node.error {
+    animation: glowing-red 1000ms infinite;
+    animation-direction: alternate-reverse;
+    animation-timing-function: linear;
+}
+
+.node .pin.error {
+    animation: glowing-red 1000ms infinite, shake 200ms infinite;
+    animation-direction: alternate-reverse;
+    animation-timing-function: linear;
+    background-color: rgb(255, 145, 145);
+}
+
+svg {
+    border: solid #DDDDDD;
+}
+
+.node svg {
+    border-width: 1px;
+}
+
+.embedded-node {
+    overflow: visible;
+}
+
+.node .node-drag:hover {
+    cursor: move;
+}
+
+.node .node-noglobals:hover {
+    cursor: auto;
+}
+
+.node .identifier.output {
+    padding-right: 0px;
+    text-align: right;
+}
+
+.pin-container.output div {
+    position: absolute;
+    right: 0;
+}
+
+.node .header hr {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.node .node-body {
+    display: flex;
+    max-height: 100%;
+}
+
+.node .header {
+    text-align: center;
+}
+
+.node .resize {
+    position: absolute;
+    right: 6px;
+    bottom: 8px;
+    height: 20px;
+    cursor: se-resize;
+    opacity: 0.2;
+}
+
+.node .outputs {
+    flex-grow: 0;
+    max-width: 100%;
+    padding-left: 10px;
+    margin-right: -10px;
+}
+
+.node .inputs {
+    flex-basis: 0;
+    flex-grow: 0;
+    max-width: 100%;
+    padding-right: 20px;
+    margin-left: -25px;
+}
+.node .contents {
+    flex-basis: 0;
+    flex-grow: 1;
+    max-width: 100%;
+    padding-right: 10px;
+    max-height: 90%;
+}
+
+.node .input-pin {
+    display: flex;
+}
+.node .output-pin {
+    display: flex;
+}
+
+.node .pin {
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+    border: solid black 2px;
+    margin: 4px;
+    background-color: white;
+    pointer-events: all;
+}
+
+.node .pin.dragging {
+    background-color: blue;
+}
+
+.node .input-pin .pin {
+    border-radius: 100% 10% 10% 100%;
+}
+
+.node .output-pin .pin:hover {
+    cursor: grab;
+    background-color: yellow;
+}
+
+.node-graph {
+    border: solid #DDDDDD;
+}
+
+.node-link {
+    fill: none;
+    stroke: hotpink;
+    stroke-width: 5px;
+}
+
+div.main-node {
+    padding: 5px;
+    position: relative;
+}
+
+.node .node-remove:hover {
+    cursor: pointer;
+    border: solid #DDD 2px;
+    opacity: 1;
+    background-color: white;
+}
+
+.node .node-remove {
+    text-align: center;
+    border: none;
+    position: absolute;
+    right: 8px;
+    width: 30px;
+    margin: 0;
+    top: -25px;
+    border-radius: 100%;
+    height: 30px;
+    user-select: none;
+}
+
