@@ -1,37 +1,17 @@
 import React from 'react'
 import { useDrop, useDrag, DragObjectWithType } from 'react-dnd'
-import { ItemTypes } from '../core/Constants'
 import { buildPinId } from '../core/utils'
 import { NodeResolver } from '../core/NodeResolver'
 import { LinkDataType } from '../core/NodeRegistry'
 
+enum ItemTypes {
+  FROM_OUTPUT = "CN_FROM_OUTPUT",
+  FROM_INPUT = "CN_FROM_INPUT",
+}
+
 export interface PinDropItem {
   type: ItemTypes
   [key: string]: any
-}
-
-export class StopMouseDownPropagation extends React.Component {
-  ref: React.RefObject<HTMLDivElement>
-  listener: EventListener
-
-  constructor(props: any) {
-    super(props)
-    this.ref = React.createRef()
-
-    this.listener = (e: Event) => e.stopPropagation()
-  }
-
-  componentDidMount() {
-    this.ref.current!.parentNode!.addEventListener('mousedown', this.listener)
-  }
-
-  componentWillUnmount() {
-    this.ref.current!.parentNode!.addEventListener('mousedown', this.listener)
-  }
-
-  render() {
-    return <div ref={this.ref} />
-  }
 }
 
 interface OutputPinProps {
@@ -39,6 +19,7 @@ interface OutputPinProps {
   name: string
   visualName?: string
   dataType: LinkDataType
+  resolver: NodeResolver
 }
 
 export interface PinDropItem extends DragObjectWithType {
@@ -50,26 +31,37 @@ export function OutputPin({
   nodeId,
   name,
   visualName,
-  dataType
+  dataType,
+  resolver
 }: OutputPinProps) {
   const pinId = buildPinId(nodeId, name)
 
   const [{ dragging }, dragRef] = useDrag<PinDropItem, any, any>({
-    item: { type: ItemTypes.VARIABLE_INPUT, dataType: dataType, pinId: pinId },
+    item: { type: ItemTypes.FROM_OUTPUT, dataType: dataType, pinId: pinId },
     collect: (monitor: any) => ({
       dragging: monitor.isDragging()
     })
   })
 
-  const activeClasses = dragging ? 'pin dragging' : 'pin'
+  const [, drop] = useDrop<PinDropItem, any, any>({
+    accept: ItemTypes.FROM_INPUT,
+    canDrop: (item, _monitor) => item.dataType === dataType,
+    drop: (e: any) => resolver.createPinConnection(pinId, e.pinId),
+    collect: (monitor: any) => ({
+      isOver: !!monitor.isOver(),
+      canDrop: !!monitor.canDrop(),
+      clientOffset: monitor.getClientOffset()
+    })
+  })
+
+  const activeClasses = dragging ? 'pin dragging node-noglobals' : 'pin node-noglobals'
   const hideName = !visualName || visualName === ''
+  const pinElement = dragRef(drop(<div id={pinId} className={activeClasses}/>))
 
   return (
     <div className='output-pin'>
       {hideName ? null : <span>{name}</span>}
-      <div id={pinId} ref={dragRef} className={activeClasses}>
-        <StopMouseDownPropagation />
-      </div>
+      {pinElement}
     </div>
   )
 }
@@ -96,8 +88,8 @@ export function InputPin({
   resolver
 }: InputPinProps) {
   const pinId = buildPinId(nodeId, name)
-  const [, ref] = useDrop<PinDropItem, any, any>({
-    accept: ItemTypes.VARIABLE_INPUT,
+  const [, drop] = useDrop<PinDropItem, any, any>({
+    accept: ItemTypes.FROM_OUTPUT,
     canDrop: (item, _monitor) => item.dataType === dataType,
     drop: (e: any) => resolver.createPinConnection(e.pinId, pinId),
     collect: (monitor: any) => ({
@@ -107,13 +99,21 @@ export function InputPin({
     })
   })
 
-  const classes = `pin ${error ? 'error' : ''}`
+  const [{ }, dragRef] = useDrag<PinDropItem, any, any>({
+    item: { type: ItemTypes.FROM_INPUT, dataType: dataType, pinId: pinId },
+    collect: (monitor: any) => ({
+      dragging: monitor.isDragging()
+    })
+  })
+
+  const classes = `pin node-noglobals ${error ? 'error' : ''}`
 
   const displayName = visualName === undefined ? name : visualName
+  const pinElement = dragRef(drop(<div id={pinId} className={classes} />))
 
   return (
     <div className='input-pin'>
-      <div id={pinId} ref={ref} className={classes} />
+      {pinElement}
       <span>{displayName}</span>
     </div>
   )

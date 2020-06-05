@@ -226,6 +226,7 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
               nodeId={this.props.id}
               name={key}
               visualName={value.visualName}
+              resolver={this.props.resolver!}
             />
           )
         })
