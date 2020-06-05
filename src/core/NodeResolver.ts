@@ -273,6 +273,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
       this.linksByFrom[from] = [connection]
     }
     this.linksByTo[to] = connection
+    this.invalidateNodeOutput(receiveing.nodeId)
     this.issueEvent({
       type: NewConnectionEvent,
       nodes: this.nodes,
