@@ -107,10 +107,13 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
    * @param node the node to be rendered
    */
   render(node: CanvasNode): any {
+    const type = this.registry.getNodeTypeInfo(node.type);
     return this.registry.renderNode({
       ...node,
       resolver: this,
-      resolvedData: this.resolveNode(node)
+      resolvedData: this.resolveNode(node),
+      minWidth: type.MinDimensions?.width,
+      minHeight: type.MinDimensions?.height
     })
   }
 
@@ -409,7 +412,7 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     }
   }
 
-  private createsCycle(from: string, to: string) {
+  createsCycle(from: string, to: string) {
     const visited = new Set()
     const tocheck: string[] = []
 

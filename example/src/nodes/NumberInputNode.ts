@@ -9,11 +9,15 @@ export default class NumberInputNode extends CanvasNode {
         name: string,
     };
 
+    static MinDimensions = {
+        height: 14 * 8
+    }
+
     static outValue = "value";
     static InputFormat = undefined;
     static OutputFormat = {
         [NumberInputNode.outValue]: {
-            type: 'any',
+            type: 'number',
             visualName: ''
         }
     }

@@ -9,8 +9,11 @@ import { NodeRegistry } from '../../core/NodeRegistry'
 import { buildPinId } from '../../core/utils'
 
 class TestNodeResolver extends NodeResolver {
+  invalidateNodeOutput(nodeId: string): void {
+    // ignore
+  }
   resolveNode(node: CanvasNode) {
-    throw new Error('Method not implemented.')
+    // ignore
   }
 }
 
@@ -82,6 +85,18 @@ it('Check cyclic connections', () => {
       buildPinId(n1.id, 'in')
     )
   ).toBeFalsy()
+  expect(
+    resolver!.createsCycle(
+      buildPinId(n1.id, 'out'),
+      buildPinId(n2.id, 'in')
+    )
+  ).toBeFalsy()
+  expect(
+    resolver!.createsCycle(
+      buildPinId(n2.id, 'in'),
+      buildPinId(n1.id, 'out')
+    )
+  ).toBeTruthy()
 })
 
 it('Create invalid connection', () => {

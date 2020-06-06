@@ -16,9 +16,12 @@ export class RandomDataGraphNode extends Component<OwnProps> {
     static Type = "RandomDataGraphNode";
     static Name = "Random Data";
     static InputFormat = undefined;
+    static MinDimensions = {
+        height: 14 * 8,
+    }
     static OutputFormat = {
         data: {
-            "type": "any"
+            "type": "number[]"
         }
     }
     static Construct = (props: any) => new CanvasNode(props)
@@ -41,7 +44,7 @@ export class RandomDataGraphNode extends Component<OwnProps> {
     generateRandomData() {
         let randData = [];
         for (let i = 0; i < 100; ++i) {
-            randData.push(Math.random() * 100);
+            randData.push(Math.floor(Math.random() * 100));
         }
         return randData;
     }
@@ -49,9 +52,7 @@ export class RandomDataGraphNode extends Component<OwnProps> {
     render() {
         return (<BaseNode title="Random Data" {...this.props}
             output={RandomDataGraphNode.OutputFormat} >
-            <Form.Group>
-                <Button onClick={this.onChange}>Generate</Button>
-            </Form.Group>
+            <Button onClick={this.onChange}>Generate</Button>
         </BaseNode>);
     }
 }

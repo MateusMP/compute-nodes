@@ -270,7 +270,7 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
               ) : null}
 
               <div
-                className='contents'
+                className='contents node-noglobals'
                 style={{ maxHeight: this.props.height - 20 - 45 }}
               >
                 {this.props.children}

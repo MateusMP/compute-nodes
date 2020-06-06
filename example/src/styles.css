@@ -117,8 +117,9 @@ svg {
     flex-basis: 0;
     flex-grow: 1;
     max-width: 100%;
-    padding-right: 10px;
+    padding: 2px;
     max-height: 90%;
+    overflow-y: auto;
 }
 
 .node .input-pin {
@@ -194,6 +195,6 @@ div.main-node {
     background-color: rgb(240, 240, 240);
 }
 
-.gn-data-preview {
-    overflow-y: auto;
+.gn-node-dropdown.dropdown {
+    position: unset;
 }

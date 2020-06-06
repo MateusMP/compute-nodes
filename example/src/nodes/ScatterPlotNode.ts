@@ -6,11 +6,14 @@ export default class ScatterPlotNode extends CanvasNode {
 
     static InputFormat = {
         x: {
-            type: "any",
+            type: "number[]",
         },
         y: {
-            type: "any"
+            type: "number[]"
         }
+    }
+    static MinDimensions = {
+        height: 15 * 8
     }
 
 

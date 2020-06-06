@@ -46,20 +46,18 @@ export class NumberInputGraphNode extends Component<Props> {
     render() {
         return (<BaseNode title="Number Input" {...this.props}
             output={NumberInputNode.OutputFormat} >
-            <Form.Group>
-                <Form.Control size="lg" type="text" onBlur={this.onBlur}
-                    style={{
-                        padding: "5px",
-                        height: "2em",
-                    }}
-                    placeholder={"" + this.props.data.value} ref={this.inputRef}
-                    value={this.props.data.value} onChange={this.onChange}
-                    onKeyPress={(event: any) => {
-                        if (event.key === "Enter") {
-                            this.onBlur({});
-                        }
-                    }} />
-            </Form.Group>
+            <Form.Control size="lg" type="text" onBlur={this.onBlur}
+                style={{
+                    padding: "5px",
+                    height: "2em",
+                }}
+                placeholder={"" + this.props.data.value} ref={this.inputRef}
+                value={this.props.data.value} onChange={this.onChange}
+                onKeyPress={(event: any) => {
+                    if (event.key === "Enter") {
+                        this.onBlur({});
+                    }
+                }} />
         </BaseNode>);
     }
 }

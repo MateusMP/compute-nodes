@@ -27,6 +27,36 @@ export interface PinDropItem extends DragObjectWithType {
   pinId: string
 }
 
+
+function canDrop(type: LinkDataType, expected: LinkDataType,
+  resolver: NodeResolver, fromPin: string, toPin: string): boolean {
+  if (fromPin === toPin) {
+    return false;
+  }
+  if (resolver.createsCycle(fromPin, toPin)) {
+    return false;
+  }
+
+  if (expected === 'any') {
+    return true;
+  } else if (Array.isArray(expected)) {
+    if (Array.isArray(type)) {
+      for (let x = 0; x < expected.length; ++x) {
+        if (type.indexOf(expected[x]) >= 0) {
+          return true;
+        }
+      }
+      return false;
+    } else {
+      return expected.includes(type)
+    }
+  } else if (Array.isArray(type)) {
+    return type.includes(expected)
+  } else {
+    return expected === type
+  }
+}
+
 export function OutputPin({
   nodeId,
   name,
@@ -45,8 +75,8 @@ export function OutputPin({
 
   const [, drop] = useDrop<PinDropItem, any, any>({
     accept: ItemTypes.FROM_INPUT,
-    canDrop: (item, _monitor) => item.dataType === dataType,
-    drop: (e: any) => resolver.createPinConnection(pinId, e.pinId),
+    canDrop: (e, _monitor) => canDrop(dataType, e.dataType, resolver, pinId, e.pinId),
+    drop: (e: any) => { return { connection: resolver.createPinConnection(pinId, e.pinId) } },
     collect: (monitor: any) => ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop(),
@@ -56,7 +86,7 @@ export function OutputPin({
 
   const activeClasses = dragging ? 'pin dragging node-noglobals' : 'pin node-noglobals'
   const hideName = !visualName || visualName === ''
-  const pinElement = dragRef(drop(<div id={pinId} className={activeClasses}/>))
+  const pinElement = dragRef(drop(<div id={pinId} className={activeClasses} />))
 
   return (
     <div className='output-pin'>
@@ -90,8 +120,8 @@ export function InputPin({
   const pinId = buildPinId(nodeId, name)
   const [, drop] = useDrop<PinDropItem, any, any>({
     accept: ItemTypes.FROM_OUTPUT,
-    canDrop: (item, _monitor) => item.dataType === dataType,
-    drop: (e: any) => resolver.createPinConnection(e.pinId, pinId),
+    canDrop: (e, _monitor) => canDrop(e.dataType, dataType, resolver, e.pinId, pinId),
+    drop: (e: any) => { return { connection: resolver.createPinConnection(e.pinId, pinId) } },
     collect: (monitor: any) => ({
       isOver: !!monitor.isOver(),
       canDrop: !!monitor.canDrop(),
