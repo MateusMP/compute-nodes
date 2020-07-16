@@ -26,7 +26,7 @@ export default class SumValuesGraphNode extends Component<Props> {
                     <Dropdown.Item as="button" onClick={() => this.props.resolver.updateNode(this.props.id, { data: { op: "-" } }, { invalidateOutput: true })}>Subtract</Dropdown.Item>
                     <Dropdown.Item as="button" onClick={() => this.props.resolver.updateNode(this.props.id, { data: { op: "*" } }, { invalidateOutput: true })}>Multiply</Dropdown.Item>
                     <Dropdown.Item as="button" onClick={() => this.props.resolver.updateNode(this.props.id, { data: { op: "/" } }, { invalidateOutput: true })}>Divide</Dropdown.Item>
-                    <Dropdown.Item as="button" onClick={() => this.props.resolver.updateNode(this.props.id, { data: { op: "pow" } }, { invalidateOutput: true })}>Divide</Dropdown.Item>
+                    <Dropdown.Item as="button" onClick={() => this.props.resolver.updateNode(this.props.id, { data: { op: "pow" } }, { invalidateOutput: true })}>Power</Dropdown.Item>
                 </DropdownButton>
             </div>
             <div style={{ overflow: "auto" }}>
