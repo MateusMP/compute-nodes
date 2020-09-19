@@ -1,6 +1,6 @@
 {
     "name": "compute-nodes",
-    "version": "0.2.2",
+    "version": "0.3.0",
     "description": "Compute any logic or data transformation using visual nodes!",
     "author": "MateusMP",
     "license": "MIT",
