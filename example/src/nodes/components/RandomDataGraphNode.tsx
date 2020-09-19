@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import { Form, Button } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { BaseNode, NodeResolver, CanvasNode } from 'compute-nodes';
 
 

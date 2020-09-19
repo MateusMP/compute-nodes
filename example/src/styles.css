@@ -54,6 +54,19 @@ svg {
     border-width: 1px;
 }
 
+.sidebar-node {
+    padding: 5px;
+    margin: 2px;
+    border: #AAA solid 1px;
+    border-radius: 6px;
+    cursor: grab;
+}
+
+.sidebar-node:active {
+    cursor: grabbing;
+}
+
+
 .embedded-node {
     overflow: visible;
 }

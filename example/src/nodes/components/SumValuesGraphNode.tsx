@@ -30,7 +30,9 @@ export default class SumValuesGraphNode extends Component<Props> {
                 </DropdownButton>
             </div>
             <div style={{ overflow: "auto" }}>
-                <span className="node-noglobals">{'' + this.props.resolvedData.sum}</span>
+                <span className="node-noglobals">{Array.isArray(this.props.resolvedData.sum) ?
+                    'Computed over ' + this.props.resolvedData.sum.length + ' elements' :
+                    '' + this.props.resolvedData.sum}</span>
             </div>
         </BaseNode>);
     }

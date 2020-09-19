@@ -6,7 +6,7 @@ import { NodeResolver } from '../core/NodeResolver'
 import { snapped, shouldAllowInputEvent } from '../core/utils'
 
 import { drag as d3drag } from 'd3-drag'
-import { select as d3select, event as d3event } from 'd3-selection'
+import { select as d3select } from 'd3-selection'
 import { InputPin, OutputPin } from './Pin'
 
 export interface PinData {
@@ -83,27 +83,27 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
   registerForDragging(element: SVGForeignObjectElement) {
     const that = this
 
-    function dragstarted(d: any) {
-      d.x = d3event.x
-      d.y = d3event.y
+    function dragstarted(event: any, d: any) {
+      d.x = event.x
+      d.y = event.y
     }
 
-    function dragged(d: any) {
-      d.x = d3event.x
-      d.y = d3event.y
+    function dragged(event: any, d: any) {
+      d.x = event.x
+      d.y = event.y
       d3select(that.dragArea.current.parentNode)
         .attr('x', snapped(d.x))
         .attr('y', snapped(d.y))
       that.props.resolver!.updateNode(
         that.props.id,
         { x: snapped(d.x), y: snapped(d.y) },
-        { nohistory: true }
+        { nohistory: true, moveTop: true }
       )
     }
 
-    function dragended(this: any, d: any) {
-      d.x = d3event.x
-      d.y = d3event.y
+    function dragended(this: any, event: any, d: any) {
+      d.x = event.x
+      d.y = event.y
       d3select(that.dragArea.current.parentNode)
         .attr('x', snapped(d.x))
         .attr('y', snapped(d.y))
@@ -116,7 +116,7 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
     }
 
     const dragCall = d3drag<SVGForeignObjectElement, any>()
-      .filter(() => shouldAllowInputEvent(d3event.target))
+      .filter((event: any) => shouldAllowInputEvent(event.target))
       .on('start', dragstarted)
       .on('drag', dragged)
       .on('end', dragended)
@@ -135,16 +135,16 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
   registerForResize(element: any) {
     const that = this
 
-    function resizeStarted(d: any) {
-      d.rx = d3event.x
-      d.ry = d3event.y
+    function resizeStarted(event: any, d: any) {
+      d.rx = event.x
+      d.ry = event.y
       d.startW = d.width
       d.startH = d.height
     }
 
-    function resized(d: any) {
-      d.width = snapped(Math.max(d.startW + d3event.x - d.rx, d.minW))
-      d.height = snapped(Math.max(d.startH + d3event.y - d.ry, d.minH))
+    function resized(event: any, d: any) {
+      d.width = snapped(Math.max(d.startW + event.x - d.rx, d.minW))
+      d.height = snapped(Math.max(d.startH + event.y - d.ry, d.minH))
 
       d3select(that.dragArea.current.parentNode)
         .attr('width', d.width)
@@ -156,9 +156,9 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
       )
     }
 
-    function resizeEnded(this: any, d: any) {
-      d.width = snapped(Math.max(d.startW + d3event.x - d.rx, d.minW))
-      d.height = snapped(Math.max(d.startH + d3event.y - d.ry, d.minH))
+    function resizeEnded(this: any, event: any, d: any) {
+      d.width = snapped(Math.max(d.startW + event.x - d.rx, d.minW))
+      d.height = snapped(Math.max(d.startH + event.y - d.ry, d.minH))
 
       d3select(that.dragArea.current.parentNode)
         .attr('width', d.width)
@@ -172,7 +172,7 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
     }
 
     const dragResize = d3drag<SVGForeignObjectElement, any>()
-      .filter(() => shouldAllowInputEvent(d3event.target))
+      .filter((event: any) => shouldAllowInputEvent(event.target))
       .on('start', resizeStarted)
       .on('drag', resized)
       .on('end', resizeEnded)
@@ -232,18 +232,22 @@ export class BaseNode extends React.Component<BaseNodeProps, any> {
         })
       : null
 
+    const width = Math.max(
+      this.props.minWidth || BaseNode.MIN_WIDTH,
+      this.props.width
+    )
+
+    const height = Math.max(
+      this.props.minHeight || BaseNode.MIN_HEIGHT,
+      this.props.height
+    )
+
     return (
       <foreignObject
         x={x}
         y={y}
-        width={Math.max(
-          this.props.minWidth || BaseNode.MIN_WIDTH,
-          this.props.width
-        )}
-        height={Math.max(
-          this.props.minHeight || BaseNode.MIN_HEIGHT,
-          this.props.height
-        )}
+        width={width}
+        height={height}
         className='embedded-node'
       >
         <div

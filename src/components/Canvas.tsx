@@ -47,7 +47,7 @@ function SvgCanvas({ canvas, children }: SvgCanvasProps) {
     <svg ref={ref} id='canvas' width='100%' height='100vh'>
       {isOver ? (
         <text x={20} y={20}>
-          Drop do create node!
+          Drop to create node!
         </text>
       ) : null}
       {children}
@@ -237,14 +237,14 @@ export class Canvas extends React.Component<OwnProps, State> {
       d3.select(this.dragG.current).call(
         d3
           .zoom<SVGGElement, any>()
-          .filter(() => shouldAllowInputEvent(d3.event.target))
-          .on('zoom', function () {
+          .filter((event : any) => shouldAllowInputEvent(event.target))
+          .on('zoom', function (event: any) {
             that.transform = {
-              x: d3.event.transform.x,
-              y: d3.event.transform.y,
-              zoom: d3.event.transform.k
+              x: event.transform.x,
+              y: event.transform.y,
+              zoom: event.transform.k
             }
-            g.attr('transform', d3.event.transform)
+            g.attr('transform', event.transform)
           })
       )
 

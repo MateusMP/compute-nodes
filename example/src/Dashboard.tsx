@@ -31,7 +31,7 @@ function VisualNodeOption({ name, details }: any) {
     });
 
     return (
-        <div ref={dragRef}>{name}</div>
+        <div className="sidebar-node" ref={dragRef}>{name}</div>
     );
 }
 

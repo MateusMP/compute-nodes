@@ -4,10 +4,10 @@ import { Dashboard } from './Dashboard';
 import 'compute-nodes/dist/index.css';
 
 import { DndProvider } from 'react-dnd';
-import Backend from 'react-dnd-html5-backend';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const App = () => {
-    return (< DndProvider backend={Backend} >
+    return (< DndProvider backend={HTML5Backend} >
         <Dashboard />
     </DndProvider>)
 }

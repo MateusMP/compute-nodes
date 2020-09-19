@@ -26,6 +26,7 @@ export interface ResolverEvent {
   node?: CanvasNode
   connection?: Connection
   invalidateOutput?: boolean
+  moveTop?: boolean // Moves element to the end of node map
   [key: string]: any
 }
 
@@ -195,6 +196,12 @@ export abstract class NodeResolver<T extends NodeRegistry = NodeRegistry> {
     if (eventInfo?.invalidateOutput) {
       this.invalidateNodeOutput(id)
     }
+    if (eventInfo?.moveTop) {
+      // Delete key and add it again so it is the "last" key
+      delete this.nodes[id]
+      this.nodes[id] = updatedNode
+    }
+
     this.issueEvent({
       type: UpdateNodeEvent,
       nodes: this.nodes,
